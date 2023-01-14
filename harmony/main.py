@@ -13,6 +13,7 @@ from harmony.constants import (
     SortingStrategyName,
     TXT2ASECommandArguments,
     TXT2CLRCommandArguments,
+    TXT2ImageCommandArguments,
 )
 from harmony.models import Color
 from harmony.service_layer.ase_writing import ASEWriting
@@ -113,7 +114,7 @@ def txt2clr(
 
 @CommandWithVersion(app)
 def txt2image(
-    colors_file: typer.FileText = TXT2CLRCommandArguments.colors_file,
+    colors_file: typer.FileText = TXT2ImageCommandArguments.colors_file,
 ):
     """Command to generate a color palette with the visual representation of the colors
     especified in the passed file"""
