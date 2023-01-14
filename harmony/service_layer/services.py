@@ -21,7 +21,7 @@ from harmony.service_layer.sorting_strategies import (
     SortingStrategy,
     StepSorting,
 )
-from harmony.service_layer.writting_strategies import WritingStrategy
+from harmony.service_layer.writing_strategies import WritingStrategy
 from harmony.utils import (
     does_file_name_have_extension,
     extract_extension_from_file_path,

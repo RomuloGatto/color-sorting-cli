@@ -3,7 +3,7 @@ from typing import Any, Dict, Tuple
 
 from harmony.constants import ByteOrder
 from harmony.models import RGB, Color
-from harmony.service_layer.writting_strategies import WritingStrategy
+from harmony.service_layer.writing_strategies import WritingStrategy
 from harmony.utils import float_to_bytes
 
 

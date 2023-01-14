@@ -11,7 +11,7 @@ no-docstring-rgx=(^_|^close$)
 max-args=3
 max-bool-expr=1
 max-branches=2
-max-locals=4
+max-locals=5
 max-parents=3
 max-returns=2
 

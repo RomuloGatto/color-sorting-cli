@@ -3,10 +3,11 @@ from typing import Tuple
 
 from harmony.constants import ColorFormat
 from harmony.models import RGB, Color
-from harmony.service_layer.ase_writting import ASEWriting
-from harmony.service_layer.clr_writting import CLRWriting
+from harmony.service_layer.ase_writing import ASEWriting
+from harmony.service_layer.clr_writing import CLRWriting
+from harmony.service_layer.png_writing import PNGWritting
 from harmony.service_layer.services import ColorWriter
-from harmony.service_layer.writting_strategies import DefaultWriting
+from harmony.service_layer.writing_strategies import DefaultWriting
 from tests.helpers import get_temporary_file_path
 
 
@@ -142,7 +143,7 @@ class TestColorsWriter:
         assert expected_color_bytes2 in result
 
     def test_write_as_clr_file(self) -> None:
-        """Test writting ".ase" file"""
+        """Test writting ".clr" file"""
         arrangement = self._given_colors()
         result = self._when_colors_are_passed_writting_as_clr(arrangement)
         self._then_should_write_to_clr_file(result)
@@ -171,6 +172,34 @@ class TestColorsWriter:
 
         assert expected_color_bytes1 in result
         assert expected_color_bytes2 in result
+
+    def test_write_as_png_file(self) -> None:
+        """Test writting ".png" file"""
+        arrangement = self._given_colors()
+        result = self._when_colors_are_passed_writting_as_png(arrangement)
+        self._then_should_write_to_png_file(result)
+
+    def _when_colors_are_passed_writting_as_png(
+        self, arrangement: Tuple[Color]
+    ) -> bytes:
+        temporary_file = get_temporary_file_path(suffix=".png")
+        strategy = PNGWritting()
+        writer = ColorWriter(strategy)
+
+        writer.write(arrangement, temporary_file)
+
+        colors_file_content: str
+
+        with open(temporary_file, "rb") as colors_file:
+            colors_file_content = colors_file.read()
+
+        os.remove(temporary_file)
+
+        return colors_file_content
+
+    def _then_should_write_to_png_file(self, result: bytes) -> None:
+        assert len(result) > 0
+        assert result.find(b"\x89PNG\r\n\x1a\n") == 0
 
     def _given_colors(self) -> Tuple[Color]:
         rgb1 = RGB(235, 61, 52)

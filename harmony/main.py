@@ -15,8 +15,9 @@ from harmony.constants import (
     TXT2CLRCommandArguments,
 )
 from harmony.models import Color
-from harmony.service_layer.ase_writting import ASEWriting
-from harmony.service_layer.clr_writting import CLRWriting
+from harmony.service_layer.ase_writing import ASEWriting
+from harmony.service_layer.clr_writing import CLRWriting
+from harmony.service_layer.png_writing import PNGWritting
 from harmony.service_layer.services import (
     ColorReader,
     ColorSorter,
@@ -24,7 +25,7 @@ from harmony.service_layer.services import (
     get_final_file_path,
     get_path_with_extension,
 )
-from harmony.service_layer.writting_strategies import DefaultWriting, WritingStrategy
+from harmony.service_layer.writing_strategies import DefaultWriting, WritingStrategy
 
 app = typer.Typer(pretty_exceptions_show_locals=False, rich_markup_mode="markdown")
 
@@ -62,7 +63,7 @@ def _get_colors_tuple_for_convertion(
 def convert_txt_file(
     colors_file: typer.FileText,
     writing_strategy: WritingStrategy,
-    must_generate_color_names: bool,
+    must_generate_color_names: bool = False,
 ):
     """Convert the text file using the passed writing strategy
 
@@ -104,6 +105,20 @@ def txt2clr(
     """Command to convert a text file into a ".clr" file"""
     try:
         convert_txt_file(colors_file, CLRWriting(), generate_names)
+
+    except Exception as exception:
+        rich.print(f"[bright_red] ERROR: {exception}")
+        raise typer.Exit(code=1)
+
+
+@CommandWithVersion(app)
+def txt2image(
+    colors_file: typer.FileText = TXT2CLRCommandArguments.colors_file,
+):
+    """Command to generate a color palette with the visual representation of the colors
+    especified in the passed file"""
+    try:
+        convert_txt_file(colors_file, PNGWritting())
 
     except Exception as exception:
         rich.print(f"[bright_red] ERROR: {exception}")

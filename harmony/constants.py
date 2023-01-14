@@ -152,3 +152,9 @@ class FloatComparisonTolerance(float, Enum):
 
     THREE_DECIMAL_PLACES = 10 ** (-3)
     SEVEN_DECIMAL_PLACES = 10 ** (-7)
+
+
+class ImageModesForPIL:
+    """Contants for the image modes for Pillow package"""
+
+    RGB_MODE = "RGB"

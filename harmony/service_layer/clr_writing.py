@@ -8,7 +8,7 @@ from harmony.constants import (
     FloatComparisonTolerance,
 )
 from harmony.models import RGB, Color
-from harmony.service_layer.writting_strategies import WritingStrategy
+from harmony.service_layer.writing_strategies import WritingStrategy
 from harmony.utils import are_almost_equal, float_to_bytes
 
 
