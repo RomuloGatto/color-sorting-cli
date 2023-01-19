@@ -1,13 +1,13 @@
 import os
 from typing import Tuple
 
-from harmony.constants import ColorFormat
-from harmony.models import RGB, Color
-from harmony.service_layer.ase_writing import ASEWriting
-from harmony.service_layer.clr_writing import CLRWriting
-from harmony.service_layer.png_writing import PNGWritting
-from harmony.service_layer.services import ColorWriter
-from harmony.service_layer.writing_strategies import DefaultWriting
+from harmony.color_sorting.service_layer.writing_strategies import PlainTextWriting
+from harmony.core.constants import ColorFormat
+from harmony.core.models import RGB, Color
+from harmony.core.service_layer.services import ColorWriter
+from harmony.to_ase_convertion.services import ASEWriting
+from harmony.to_clr_convertion.services import CLRWriting
+from harmony.to_image_convertion.services import PNGWritting
 from tests.helpers import get_temporary_file_path
 
 
@@ -22,7 +22,7 @@ class TestColorsWriter:
 
     def _when_colors_are_passed_writing_as_rgb(self, arrangement: Tuple[Color]) -> str:
         temporary_file = get_temporary_file_path()
-        strategy = DefaultWriting(ColorFormat.RGB)
+        strategy = PlainTextWriting(ColorFormat.RGB)
         writer = ColorWriter(strategy)
 
         writer.write(arrangement, temporary_file)
@@ -53,7 +53,7 @@ class TestColorsWriter:
         self, arrangement: Tuple[Color]
     ) -> str:
         temporary_file = get_temporary_file_path()
-        strategy = DefaultWriting(ColorFormat.HEXCODE)
+        strategy = PlainTextWriting(ColorFormat.HEXCODE)
         writer = ColorWriter(strategy)
 
         writer.write(arrangement, temporary_file)
@@ -84,7 +84,7 @@ class TestColorsWriter:
         self, arrangement: Tuple[Color]
     ) -> str:
         temporary_file = get_temporary_file_path()
-        strategy = DefaultWriting(ColorFormat.SAME_AS_INPUT)
+        strategy = PlainTextWriting(ColorFormat.SAME_AS_INPUT)
         writer = ColorWriter(strategy)
 
         writer.write(arrangement, temporary_file)

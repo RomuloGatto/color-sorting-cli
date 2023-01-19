@@ -1,7 +1,7 @@
 from typing import Tuple
 
-from harmony.models import RGB
-from harmony.service_layer.converters import RGBToHSLConverter
+from harmony.core.models import RGB
+from harmony.core.service_layer.converters import RGBToHSLConverter
 from tests.helpers import assert_real_numbers_are_equal
 
 

@@ -1,8 +1,9 @@
 from typing import List, Tuple
 
-from harmony.constants import ColorFormat, Directions, SortingStrategyName
-from harmony.models import RGB, Color
-from harmony.service_layer.services import ColorSorter
+from harmony.color_sorting.constants import Directions, SortingStrategyName
+from harmony.color_sorting.service_layer.services import ColorSorter
+from harmony.core.constants import ColorFormat
+from harmony.core.models import RGB, Color
 
 
 class TestColorSorter:

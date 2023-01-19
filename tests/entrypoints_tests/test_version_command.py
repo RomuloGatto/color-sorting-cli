@@ -4,7 +4,7 @@ from typing import List
 from click.testing import Result
 from typer.testing import CliRunner
 
-from harmony.main import app
+from harmony.harmony.main import app
 
 
 class TestVersionCommand:

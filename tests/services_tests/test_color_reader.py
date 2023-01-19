@@ -1,12 +1,15 @@
 import os
-from typing import Callable, List
+from typing import BinaryIO, Callable, List, Set
 
 import pytest
 
-from harmony.exceptions import InvalidColorException
-from harmony.models import RGB, Color
-from harmony.service_layer.services import ColorReader
-from tests.helpers import get_temporary_file_path
+from harmony.core.constants import ColorFormat
+from harmony.core.exceptions import InvalidColorException
+from harmony.core.models import RGB, Color
+from harmony.core.service_layer.file_readings import PlainTextFileReading
+from harmony.core.service_layer.services import ColorReader
+from harmony.from_image_reading.services import ImageFileReading
+from tests.helpers import TestResourceUtils, get_temporary_file_path
 
 
 class TestColorReader:
@@ -18,7 +21,7 @@ class TestColorReader:
 
         try:
             result = self._when_file_is_passed(arrangements)
-            self._then_should_extract_colors(result)
+            self._then_should_extract_colors_from_text(list(result))
 
         finally:
             os.remove(arrangements)
@@ -31,29 +34,20 @@ class TestColorReader:
 
         return temporary_file_path
 
-    def _then_should_extract_colors(self, colors: List[Color]) -> None:
-        expected_rgb_for_the_first_color = RGB(red=22, green=92, blue=196)
-        actual_rgb_for_the_first_color = colors[0].rgb
+    def _then_should_extract_colors_from_text(self, colors: List[Color]) -> None:
+        expected_rgb = RGB(red=22, green=92, blue=196)
+        expected_hexcode = "#c416be"
+        first_expected_description = "Blue"
+        second_expected_description = "Magenta"
 
-        expected_hexcode_for_the_second_color = "#c416be"
-        actual_hexcode_for_the_second_color = colors[1].hexcode
+        color_labels = [color.description for color in colors]
+        color_hexcodes = [color.hexcode for color in colors]
+        color_rgbs = [color.rgb for color in colors]
 
-        expected_description_for_first_color = "Blue"
-        actual_description_for_first_color = colors[0].description
-
-        expected_description_for_second_color = "Magenta"
-        actual_description_for_second_color = colors[1].description
-
-        assert expected_rgb_for_the_first_color == actual_rgb_for_the_first_color
-        assert (
-            expected_hexcode_for_the_second_color == actual_hexcode_for_the_second_color
-        )
-        assert (
-            expected_description_for_first_color == actual_description_for_first_color
-        )
-        assert (
-            expected_description_for_second_color == actual_description_for_second_color
-        )
+        assert expected_rgb in color_rgbs
+        assert expected_hexcode in color_hexcodes
+        assert first_expected_description in color_labels
+        assert second_expected_description in color_labels
 
     def test_extracting_colors_from_invalid_format(self) -> None:
         arrangements = self._given_file_with_invalid_formats()
@@ -77,7 +71,7 @@ class TestColorReader:
         return temporary_file_path
 
     def _when_file_is_passed(self, file_path: str) -> List[Color]:
-        extractor = ColorReader()
+        extractor = ColorReader(PlainTextFileReading(True))
         with open(file_path) as file:
             return extractor.extract_from_file(file)
 
@@ -105,3 +99,43 @@ class TestColorReader:
 
         for expected_name in expected_color_names:
             assert expected_name in actual_color_names
+
+    def test_extract_from_image(self) -> None:
+        """Test extracting colors from image"""
+        with self._given_image() as image:
+            result = self._when_image_is_passed(image)
+
+        self._then_should_extract_colors_from_image(list(result))
+
+    def _given_image(self) -> bytes:
+        return open(TestResourceUtils.get_resource("image-for-reading.jpg"), "rb")
+
+    def _when_image_is_passed(self, arrangement: BinaryIO) -> Set[Color]:
+        return ColorReader(ImageFileReading()).extract_from_file(arrangement)
+
+    def _then_should_extract_colors_from_image(self, result: List[Color]) -> None:
+        for color in self._get_colors_expected_in_image():
+            assert color in result
+
+    @staticmethod
+    def _get_colors_expected_in_image() -> List[Color]:
+        return [
+            Color(
+                rgb=RGB(red=207, green=189, blue=177),
+                hexcode="cfbdb1",
+                original_format=ColorFormat.RGB,
+                description="Silk",
+            ),
+            Color(
+                rgb=RGB(red=34, green=32, blue=33),
+                hexcode="222021",
+                original_format=ColorFormat.RGB,
+                description="Liver",
+            ),
+            Color(
+                rgb=RGB(red=44, green=106, blue=91),
+                hexcode="2c6a5b",
+                original_format=ColorFormat.RGB,
+                description="Genoa",
+            ),
+        ]

@@ -6,4 +6,4 @@ try:
     __version__ = version(__app_name__)
 
 except PackageNotFoundError:
-    __version__ = "0.6.1"
+    __version__ = "0.7.0"

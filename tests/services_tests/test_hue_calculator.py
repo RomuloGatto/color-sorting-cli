@@ -1,5 +1,6 @@
-from harmony.models import RGB, HueData
-from harmony.service_layer.converters import HueCalculator
+from harmony.color_sorting.service_layer.converters import HueCalculator
+from harmony.core.calculation_models import HueData
+from harmony.core.models import RGB
 from tests.helpers import assert_real_numbers_are_equal
 
 

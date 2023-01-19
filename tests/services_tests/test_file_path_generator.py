@@ -1,8 +1,8 @@
 import os
 from typing import Dict
 
-from harmony.constants import SortingStrategyName
-from harmony.service_layer.services import get_final_file_path
+from harmony.color_sorting.constants import SortingStrategyName
+from harmony.core.service_layer.services import get_sorted_file_path
 from tests.helpers import get_temporary_file_path
 
 
@@ -39,7 +39,7 @@ class TestFilePathGenerator:
         source_file_data = {"source_file": source_file}
         arrangement.update(source_file_data)
 
-        final_path = get_final_file_path(**arrangement)
+        final_path = get_sorted_file_path(**arrangement)
         source_file.close()
 
         return final_path

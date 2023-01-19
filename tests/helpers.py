@@ -1,3 +1,4 @@
+import os
 import tempfile
 from numbers import Number
 from typing import Tuple
@@ -40,3 +41,27 @@ def assert_real_numbers_are_equal(
     assert (
         _absolute_difference_between(expected_number, actual_number) < tolerance
     ), f"Expected {expected_number}, got {actual_number}"
+
+
+class TestResourceUtils:
+    """Methods for managing resources"""
+
+    @classmethod
+    def get_resource(cls, path: str) -> str:
+        """Return the absolute path to the resource passed
+
+        Args:
+            path (str): path to the resource relative to the resources directory
+
+        Returns:
+            str: absolute path to the resourse
+        """
+        return os.path.join(cls._get_resources_directory_path(), path)
+
+    @classmethod
+    def _get_resources_directory_path(cls) -> str:
+        return os.path.join(cls._get_current_directory_path(), "resources")
+
+    @classmethod
+    def _get_current_directory_path(cls) -> str:
+        return os.path.abspath(os.path.dirname(__file__))

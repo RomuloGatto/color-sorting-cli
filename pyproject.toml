@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "harmony"
-version = "0.6.1"
+version = "0.7.0"
 description = "CLI for sorting colors"
 authors = ["Lucas Calegario <lucas.c.calegario@outlook.com>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
-harmony = "harmony.main:app"
+harmony = "harmony.harmony.main:app"
 
 [tool.poetry.dependencies]
 python = "^3.8"
