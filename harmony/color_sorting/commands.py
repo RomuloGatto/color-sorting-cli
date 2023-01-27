@@ -25,7 +25,7 @@ def sort(
     sorting_algorithm: SortingStrategyName = SortCommandArguments.sorting_algorithm,
     direction: Directions = SortCommandArguments.direction,
     color_format: ColorFormat = CommonArguments.color_format,
-    suffix: str = SortCommandArguments.suffix,
+    suffix: str = CommonArguments.suffix,
     generate_names: bool = CommonArguments.generate_names,
 ) -> None:
     """Entry point for generating a file with the sorted colors"""

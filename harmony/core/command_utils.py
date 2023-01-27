@@ -14,10 +14,14 @@ class CommandUtils:
     """Helping methods for the entrypoints"""
 
     def __init__(
-        self, writing_strategy: WritingStrategy, must_generate_color_names: bool = False
+        self,
+        writing_strategy: WritingStrategy,
+        suffix: str,
+        must_generate_color_names: bool = False,
     ) -> None:
         self._writing_strategy = writing_strategy
         self._must_generate_color_names = must_generate_color_names
+        self._suffix = suffix
 
     def convert_txt_file(
         self,
@@ -32,14 +36,14 @@ class CommandUtils:
         """
         ColorWriter(self._writing_strategy).write(
             self._get_colors_tuple_for_convertion(file_path),
-            PathGenerator("").get_path_with_extension(
+            PathGenerator(self._suffix).get_path_with_extension(
                 file_path, self._writing_strategy.EXTENSION
             ),
         )
 
         rich.print(
             "[green]File converted and saved to "
-            + PathGenerator("").get_path_with_extension(
+            + PathGenerator(self._suffix).get_path_with_extension(
                 file_path, self._writing_strategy.EXTENSION
             )
         )

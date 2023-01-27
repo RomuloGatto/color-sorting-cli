@@ -23,7 +23,6 @@ class DefaultParameters:
     """Constants for the default subjective parameters"""
 
     PALETTE_NAME: str = f"Palette {uuid.uuid4()} sorted by Harmony"
-    SUFFIX: str = "_sorted"
 
 
 class ColorFormat(str, Enum):
@@ -95,3 +94,9 @@ class CommonArguments:
         help="The format the colors will be written in the output file",
     )
     file_path: Path = make_file_path_argument("File to be converted")
+    suffix: str = typer.Option(
+        "",
+        "--suffix",
+        "-s",
+        help="Suffix to add to the name of the output file",
+    )

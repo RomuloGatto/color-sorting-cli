@@ -14,10 +14,11 @@ def txt2ase(
     file_path: Path = CommonArguments.file_path,
     palette_name: str = TXT2ASECommandArguments.palette_name,
     generate_names: bool = CommonArguments.generate_names,
+    suffix: str = CommonArguments.suffix,
 ):
     """Command to convert a text file into a ".ase" file"""
     try:
-        CommandUtils(ASEWriting(palette_name), generate_names).convert_txt_file(
+        CommandUtils(ASEWriting(palette_name), suffix, generate_names).convert_txt_file(
             file_path
         )
 

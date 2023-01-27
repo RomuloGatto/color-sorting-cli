@@ -3,8 +3,6 @@ from pathlib import Path
 
 import typer
 
-from harmony.core.constants import DefaultParameters
-
 
 class Directions(str, Enum):
     """Constants for the direction of the sorting"""
@@ -49,10 +47,4 @@ class SortCommandArguments:
         "-d",
         case_sensitive=False,
         help="If the colors will be sorted forward or backward",
-    )
-    suffix: str = typer.Option(
-        DefaultParameters.SUFFIX,
-        "--suffix",
-        "-s",
-        help="Suffix to add to the name of the output file",
     )
