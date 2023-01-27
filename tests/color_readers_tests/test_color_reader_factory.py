@@ -36,4 +36,4 @@ class TestColorReaderFactory:
         assert len(result) == 1
 
     def _when_reader_made(self, arrangement: ColorReadingArrangement) -> ColorReader:
-        return extract_colors_from_path(arrangement.path, arrangement.strategy)
+        return extract_colors_from_path(arrangement.path, arrangement.strategy, False)

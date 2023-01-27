@@ -1,3 +1,4 @@
+# pylint: disable=too-many-arguments,too-many-locals
 from pathlib import Path
 from typing import Tuple
 
@@ -16,10 +17,13 @@ from harmony.from_image_reading.services import ImageFileReading
 def image2txt(
     path: Path = Image2TXTArguments.path,
     color_format: ColorFormat = CommonArguments.color_format,
+    recursively: bool = Image2TXTArguments.recursively,
 ) -> None:
     """Extract the colors from an image and write them into a plain text file"""
     try:
-        colors: Tuple[Color, ...] = extract_colors_from_path(path, ImageFileReading())
+        colors: Tuple[Color, ...] = extract_colors_from_path(
+            path, ImageFileReading(), recursively
+        )
         final_file_path = PathGenerator("").get_path_with_extension(
             path, PlainTextWriting.EXTENSION
         )

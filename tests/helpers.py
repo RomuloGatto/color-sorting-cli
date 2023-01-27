@@ -104,6 +104,12 @@ class TestResourceUtils:
 class FakeFileReadingStrategy(FileReadingStrategy):
     colors_queue: List[Color] = [
         Color(
+            rgb=RGB(212, 104, 4),
+            hexcode="#d46804",
+            original_format=ColorFormat.HEXCODE,
+            description="Orange",
+        ),
+        Color(
             rgb=RGB(red=22, green=92, blue=196),
             hexcode="#165cc4",
             original_format=ColorFormat.HEXCODE,
@@ -132,7 +138,11 @@ class ColorReadingArrangement:
 
 
 def get_directory_to_read(directory: Path) -> ColorReadingArrangement:
-    directory.joinpath("fake-file1.txt").write_text("#165cc4 blue")
-    directory.joinpath("fake-file2.txt").write_text("#c416be red")
+    directory.joinpath("fake-file1.txt").write_text("#c416be Magenta")
+    directory.joinpath("fake-file2.txt").write_text("#165cc4 Blue")
+    directory.joinpath("fake-folder").mkdir()
+    directory.joinpath("fake-folder").joinpath("fake-file3.txt").write_text(
+        "#c416be red"
+    )
 
     return ColorReadingArrangement(directory, strategy=FakeFileReadingStrategy())

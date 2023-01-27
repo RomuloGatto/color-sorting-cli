@@ -25,7 +25,9 @@ class TestDirectoryColorReader:
 
         self._then_should_get_colors(result)
 
-    def _then_should_get_colors(self, result: Tuple[Color]) -> None:
+    def _then_should_get_colors(self, result: Tuple[Color, ...]) -> None:
+        assert len(result) == 2
+
         for color in result:
             assert color in FakeFileReadingStrategy.colors_queue
 
@@ -48,9 +50,22 @@ class TestDirectoryColorReader:
         with pytest.raises(NoColorsFoundException):
             result()
 
+    def test_reading_directory_recursively(self) -> None:
+        """Test reading the colors from all files in directory recursively"""
+        with temporary_directory_context() as directory:
+            arrangement = get_directory_to_read(directory)
+            result = self._when_directory_readed(arrangement, True)
+        self._then_should_read_recursively(result)
+
+    def _then_should_read_recursively(self, result: Tuple[Color, ...]) -> None:
+        assert len(result) == 3
+
+        for color in result:
+            assert color in FakeFileReadingStrategy.colors_queue
+
     def _when_directory_readed(
-        self, arrangement: ColorReadingArrangement
-    ) -> Tuple[Color]:
-        return DirectoryColorReader(arrangement.strategy).extract_colors(
-            arrangement.path
-        )
+        self, arrangement: ColorReadingArrangement, should_be_recursively: bool = False
+    ) -> Tuple[Color, ...]:
+        return DirectoryColorReader(
+            arrangement.strategy, should_be_recursively
+        ).extract_colors(arrangement.path)
