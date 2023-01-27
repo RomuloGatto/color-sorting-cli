@@ -34,12 +34,14 @@ class SortCommandArguments:
         SortingStrategyName.HILLBERT.value,
         "--sorting-algorithm",
         "-a",
+        case_sensitive=False,
         help="Algorithm to be used for sorting the colors",
     )
     direction: Directions = typer.Option(
         Directions.FORWARD.value,
         "--direction",
         "-d",
+        case_sensitive=False,
         help="If the colors will be sorted forward or backward",
     )
     suffix: str = typer.Option(

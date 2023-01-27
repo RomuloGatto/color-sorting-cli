@@ -77,5 +77,6 @@ class CommonArguments:
         ColorFormat.SAME_AS_INPUT.value,
         "--color-format",
         "-f",
+        case_sensitive=False,
         help="The format the colors will be written in the output file",
     )
