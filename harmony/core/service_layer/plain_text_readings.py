@@ -1,7 +1,7 @@
-from plistlib import InvalidFileException
 from typing import List, Tuple
 
 from harmony.core.constants import MAXIMUM_RGB_VALUE, ColorFormat
+from harmony.core.exceptions import InvalidFileException
 from harmony.core.interfaces import PlainTextReadingStrategy
 from harmony.core.models import RGB, Color
 from harmony.core.utils import HexcodeUtils, RGBUtils
@@ -73,9 +73,6 @@ class RGBReading(PlainTextReadingStrategy):
             original_format=ColorFormat.RGB,
             description=self._get_description_from_rgb_and_description(raw_string),
         )
-
-    def _get_red_from_rgb_and_description(self, rgb_and_description: str) -> int:
-        return self._get_components_from_rgb_and_description(rgb_and_description)[0]
 
     def _get_and_clean_rgb_from_rgb_and_description(
         self, rgb_and_description: str

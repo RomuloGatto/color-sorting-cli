@@ -11,7 +11,7 @@ from harmony.to_clr_convertion.utils import (
     is_8_bit_signed_integer,
     is_clr_color_component_near_one,
     is_clr_color_component_near_zero,
-    is_clr_color_count_valid,
+    is_clr_color_count_invalid,
 )
 
 
@@ -32,11 +32,19 @@ class CLRWriting(WritingStrategy):
             final_file_path (str): path to the file where the colors will be passed
 
         Raises:
-            InvalidCLRFileException: when a CLR file is tried to be written with less
+            InvalidFileException: when a CLR file is tried to be written with less
             then 1 color
         """
+        self._check_color_amount(colors)
+
         with open(final_file_path, "wb") as final_file:
             final_file.write(self._get_file_content(colors))
+
+    def _check_color_amount(self, colors: Tuple[Color, ...]) -> None:
+        if is_clr_color_count_invalid(len(colors)):
+            raise InvalidFileException(
+                f"CLR files must have at least one color, but {len(colors)} was passed"
+            )
 
     def _get_file_content(self, colors: Tuple[Color, ...]) -> bytes:
         file_content = bytearray()
@@ -65,15 +73,10 @@ class CLRWriting(WritingStrategy):
         return self._get_color_count_chunk(len(colors))
 
     def _get_color_count_chunk(self, color_count: int) -> bytearray:
-        if is_clr_color_count_valid(color_count):
-            color_chunk = bytearray(CLRSpecialBytes.COLOR_COUNT_CHUNK_START)
-            color_chunk.extend(self._get_color_count_bytes(color_count))
+        color_chunk = bytearray(CLRSpecialBytes.COLOR_COUNT_CHUNK_START)
+        color_chunk.extend(self._get_color_count_bytes(color_count))
 
-            return color_chunk
-
-        raise InvalidFileException(
-            f"CLR files must have at least one color, but {color_count} was passed"
-        )
+        return color_chunk
 
     def _get_color_count_bytes(self, color_count: int) -> bytearray:
         if is_8_bit_signed_integer(color_count):

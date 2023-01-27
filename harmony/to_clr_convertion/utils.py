@@ -6,9 +6,9 @@ from harmony.core.constants import (
 from harmony.core.math_utils import are_almost_equal
 
 
-def is_clr_color_count_valid(color_count: int) -> bool:
+def is_clr_color_count_invalid(color_count: int) -> bool:
     """Return `True` if the value is bigger than 0"""
-    return color_count > 0
+    return color_count <= 0
 
 
 def is_8_bit_signed_integer(integer_to_check: int) -> bool:

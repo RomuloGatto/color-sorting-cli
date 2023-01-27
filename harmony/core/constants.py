@@ -1,5 +1,7 @@
 import uuid
 from enum import Enum
+from pathlib import Path
+from typing import Any
 
 import typer
 
@@ -64,6 +66,18 @@ class ImageModesForPIL:
     RGB_MODE = "RGB"
 
 
+def make_file_path_argument(helping_text: str) -> Any:
+    """Returns a typer argument for a file path with the passed helping text"""
+    return typer.Argument(
+        ...,
+        exists=True,
+        file_okay=True,
+        readable=True,
+        resolve_path=True,
+        help=helping_text,
+    )
+
+
 class CommonArguments:
     """Store the arguments common to more than one command"""
 
@@ -80,3 +94,4 @@ class CommonArguments:
         case_sensitive=False,
         help="The format the colors will be written in the output file",
     )
+    file_path: Path = make_file_path_argument("File to be converted")

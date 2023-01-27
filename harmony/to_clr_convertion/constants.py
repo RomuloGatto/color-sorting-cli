@@ -1,6 +1,3 @@
-import typer
-
-
 class CLRSpecialBytes:
     """Store the special chunks of bytes of the MacOS CLR file format"""
 
@@ -33,9 +30,3 @@ class CLRSpecialBytes:
         file_start.extend(cls.START_OF_FILE)
 
         return file_start
-
-
-class TXT2CLRCommandArguments:
-    """Store the "txt2clr" command arguments"""
-
-    colors_file: typer.FileText = typer.Argument(..., help="File to be converted")

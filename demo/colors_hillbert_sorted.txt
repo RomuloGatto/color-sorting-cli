@@ -1,6 +1,6 @@
-(84, 16, 13) 
-(84, 62, 115) 
-#b52871 
-(201, 118, 6) 
-#0f8fb3 
-(49, 6, 210) 
+(84, 16, 13) Falu Red
+(84, 62, 115) Meteorite
+#b52871 Deep Cerise
+(201, 118, 6) Tenne (Tawny)
+#0f8fb3 Pacific Blue
+(49, 6, 210) Medium Blue

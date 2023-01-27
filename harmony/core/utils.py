@@ -1,26 +1,11 @@
 import os
 import struct
-from typing import IO, Iterable, List
+from typing import Iterable, List
 
 from harmony.core.constants import ByteOrder
 from harmony.core.exceptions import NoExtensionFoundException
 from harmony.core.models import RGB
 from harmony.typing import T
-
-
-def get_path_with_extension(source_file: IO, extension: str) -> str:
-    """Return the path to file with the given extension
-
-    Args:
-        source_file (TextIO): original file
-
-    Returns:
-        str: path to the converted file
-    """
-    if does_file_name_have_extension(source_file.name):
-        return f"{extract_extension_from_file_path(source_file.name)}.{extension}"
-
-    return f"{source_file.name}.{extension}"
 
 
 class ResourceUtils:

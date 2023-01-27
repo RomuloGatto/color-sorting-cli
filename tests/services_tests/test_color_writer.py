@@ -1,207 +1,50 @@
-import os
-from typing import Tuple
+from typing import TextIO, Tuple
 
-from harmony.color_sorting.service_layer.writing_strategies import PlainTextWriting
 from harmony.core.constants import ColorFormat
+from harmony.core.interfaces import WritingStrategy
 from harmony.core.models import RGB, Color
 from harmony.core.service_layer.services import ColorWriter
-from harmony.to_ase_convertion.services import ASEWriting
-from harmony.to_clr_convertion.services import CLRWriting
-from harmony.to_image_convertion.services import PNGWritting
-from tests.helpers import get_temporary_file_path
+from tests.helpers import temporary_file_context
+
+
+class FakeWriting(WritingStrategy):
+    def write(self, colors: Tuple[Color, ...], final_file_path: str):
+        with open(final_file_path, "w") as file:
+            self._for_each_color_write_description(file, colors)
+
+    def _for_each_color_write_description(
+        self, file: TextIO, colors: Tuple[Color, ...]
+    ):
+        for index, color in enumerate(colors):
+            file.write(color.description)
+
+            if index < len(colors) - 1:
+                file.write("\n")
 
 
 class TestColorsWriter:
     """Tests for the colors writer"""
 
-    def test_write_colors_as_rgb(self) -> None:
-        """Test writing colors to file"""
+    def test_writing_colors_to_file(self) -> None:
+        """Test writing the valid passed colors to file"""
         arrangement = self._given_colors()
-        result = self._when_colors_are_passed_writing_as_rgb(arrangement)
-        self._then_should_write_to_new_file_as_rgb(result)
+        result = self._when_written(arrangement)
+        self._then_should_write_to_passed_path(result)
 
-    def _when_colors_are_passed_writing_as_rgb(self, arrangement: Tuple[Color]) -> str:
-        temporary_file = get_temporary_file_path()
-        strategy = PlainTextWriting(ColorFormat.RGB)
-        writer = ColorWriter(strategy)
+    def _when_written(self, arrangement: Tuple[Color, ...]) -> str:
+        with temporary_file_context() as file_path:
+            ColorWriter(FakeWriting()).write(arrangement, str(file_path))
 
-        writer.write(arrangement, temporary_file)
+            return file_path.read_text()
 
-        colors_file_content: str
+    def _then_should_write_to_passed_path(self, result: str) -> None:
+        assert self._get_expected_content() == result
 
-        with open(temporary_file, "r", encoding="utf8") as colors_file:
-            colors_file_content = colors_file.read()
+    @staticmethod
+    def _get_expected_content() -> str:
+        return "red\ngreen\norange"
 
-        os.remove(temporary_file)
-
-        return colors_file_content
-
-    def _then_should_write_to_new_file_as_rgb(self, result: str) -> None:
-        expected_color_string = "(75, 214, 47)"
-        unexpected_color_string = "#4bd62f"
-
-        assert expected_color_string in result
-        assert unexpected_color_string not in result
-
-    def test_write_colors_as_hexcode(self) -> None:
-        """Test writing colors to file"""
-        arrangement = self._given_colors()
-        result = self._when_colors_are_passed_writing_as_hexcode(arrangement)
-        self._then_should_write_to_new_file_as_hexcode(result)
-
-    def _when_colors_are_passed_writing_as_hexcode(
-        self, arrangement: Tuple[Color]
-    ) -> str:
-        temporary_file = get_temporary_file_path()
-        strategy = PlainTextWriting(ColorFormat.HEXCODE)
-        writer = ColorWriter(strategy)
-
-        writer.write(arrangement, temporary_file)
-
-        colors_file_content: str
-
-        with open(temporary_file, "r", encoding="utf8") as colors_file:
-            colors_file_content = colors_file.read()
-
-        os.remove(temporary_file)
-
-        return colors_file_content
-
-    def _then_should_write_to_new_file_as_hexcode(self, result: str) -> None:
-        expected_color_string = "#4bd62f"
-        unexpected_color_string = "(75, 214, 47)"
-
-        assert expected_color_string in result
-        assert unexpected_color_string not in result
-
-    def test_write_colors_as_same_as_input(self) -> None:
-        """Test writing colors to file"""
-        arrangement = self._given_colors()
-        result = self._when_colors_are_passed_writing_as_same_as_input(arrangement)
-        self._then_should_write_to_new_file_as_same_as_input(result)
-
-    def _when_colors_are_passed_writing_as_same_as_input(
-        self, arrangement: Tuple[Color]
-    ) -> str:
-        temporary_file = get_temporary_file_path()
-        strategy = PlainTextWriting(ColorFormat.SAME_AS_INPUT)
-        writer = ColorWriter(strategy)
-
-        writer.write(arrangement, temporary_file)
-
-        colors_file_content: str
-
-        with open(temporary_file, "r", encoding="utf8") as colors_file:
-            colors_file_content = colors_file.read()
-
-        os.remove(temporary_file)
-
-        return colors_file_content
-
-    def _then_should_write_to_new_file_as_same_as_input(self, result: str) -> None:
-        expected_color_string1 = "#eb3d34"
-        unexpected_color_string1 = "(235, 61, 52)"
-
-        expected_color_string2 = "(75, 214, 47)"
-        unexpected_color_string2 = "#4bd62f"
-
-        assert expected_color_string1 in result
-        assert unexpected_color_string1 not in result
-
-        assert expected_color_string2 in result
-        assert unexpected_color_string2 not in result
-
-    def test_write_as_ase_file(self) -> None:
-        """Test writting ".ase" file"""
-        arrangement = self._given_colors()
-        result = self._when_colors_are_passed_writting_as_ase(arrangement)
-        self._then_should_write_to_ase_file(result)
-
-    def _when_colors_are_passed_writting_as_ase(
-        self, arrangement: Tuple[Color]
-    ) -> bytes:
-        temporary_file = get_temporary_file_path(suffix=".ase")
-        strategy = ASEWriting("")
-        writer = ColorWriter(strategy)
-
-        writer.write(arrangement, temporary_file)
-
-        colors_file_content: str
-
-        with open(temporary_file, "rb") as colors_file:
-            colors_file_content = colors_file.read()
-
-        os.remove(temporary_file)
-
-        return colors_file_content
-
-    def _then_should_write_to_ase_file(self, result: bytes) -> None:
-        expected_color_bytes1 = b"RGB ?k\xeb\xec>t\xf4\xf5>P\xd0\xd1\x00\x02"
-        expected_color_bytes2 = b"RGB >\x96\x96\x97?V\xd6\xd7><\xbc\xbd\x00\x02"
-
-        assert expected_color_bytes1 in result
-        assert expected_color_bytes2 in result
-
-    def test_write_as_clr_file(self) -> None:
-        """Test writting ".clr" file"""
-        arrangement = self._given_colors()
-        result = self._when_colors_are_passed_writting_as_clr(arrangement)
-        self._then_should_write_to_clr_file(result)
-
-    def _when_colors_are_passed_writting_as_clr(
-        self, arrangement: Tuple[Color]
-    ) -> bytes:
-        temporary_file = get_temporary_file_path(suffix=".clr")
-        strategy = CLRWriting()
-        writer = ColorWriter(strategy)
-
-        writer.write(arrangement, temporary_file)
-
-        colors_file_content: str
-
-        with open(temporary_file, "rb") as colors_file:
-            colors_file_content = colors_file.read()
-
-        os.remove(temporary_file)
-
-        return colors_file_content
-
-    def _then_should_write_to_clr_file(self, result: bytes) -> None:
-        expected_color_bytes1 = b"\x83\xec\xebk?\x83\xf5\xf4t>\x83\xd1\xd0P>\x01\x86"
-        expected_color_bytes2 = b"\x83\x97\x96\x96>\x83\xd7\xd6V?\x83\xbd\xbc<>\x01\x86"
-
-        assert expected_color_bytes1 in result
-        assert expected_color_bytes2 in result
-
-    def test_write_as_png_file(self) -> None:
-        """Test writting ".png" file"""
-        arrangement = self._given_colors()
-        result = self._when_colors_are_passed_writting_as_png(arrangement)
-        self._then_should_write_to_png_file(result)
-
-    def _when_colors_are_passed_writting_as_png(
-        self, arrangement: Tuple[Color]
-    ) -> bytes:
-        temporary_file = get_temporary_file_path(suffix=".png")
-        strategy = PNGWritting()
-        writer = ColorWriter(strategy)
-
-        writer.write(arrangement, temporary_file)
-
-        colors_file_content: str
-
-        with open(temporary_file, "rb") as colors_file:
-            colors_file_content = colors_file.read()
-
-        os.remove(temporary_file)
-
-        return colors_file_content
-
-    def _then_should_write_to_png_file(self, result: bytes) -> None:
-        assert len(result) > 0
-        assert result.find(b"\x89PNG\r\n\x1a\n") == 0
-
-    def _given_colors(self) -> Tuple[Color]:
+    def _given_colors(self) -> Tuple[Color, ...]:
         rgb1 = RGB(235, 61, 52)
         hexcode1 = "#eb3d34"
         color1 = Color(

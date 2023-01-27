@@ -114,11 +114,18 @@ class SQLiteSession(DatabaseSession):
         return logging.getLogger(self.__class__.__name__)
 
 
-class SQLiteSessionFactory:
-    # pylint: disable=missing-class-docstring
+class SessionFactory(ABC):
+    """Factory for making session object for accessing databases"""
+
+    @abstractmethod
+    def make_session(self) -> DatabaseSession:
+        """Create a session for accessing a database"""
+
+
+class SQLiteSessionFactory(SessionFactory):
+    """Factory for making session object for accessing a SQLite database"""
 
     def make_session(self) -> DatabaseSession:
-        """Make a new session for accessing the SQLite database"""
         return SQLiteSession(ResourceUtils.get_resource(Resources.SQLITE_DATABASE))
 
 

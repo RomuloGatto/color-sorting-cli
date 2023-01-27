@@ -1,7 +1,16 @@
 from abc import ABC, abstractmethod
-from typing import IO, Tuple
+from pathlib import Path
+from typing import Tuple
 
 from harmony.core.models import RGB, Color
+
+
+class ColorReader(ABC):
+    """Interface for objects capable of extracting colors from a passed path"""
+
+    @abstractmethod
+    def extract_colors(self, path: Path) -> Tuple[Color, ...]:
+        """Extract colors given a path"""
 
 
 class WritingStrategy(ABC):
@@ -31,7 +40,7 @@ class FileReadingStrategy(ABC):
     """Interface for a object that extract a set of colors from a file"""
 
     @abstractmethod
-    def read(self, file: IO) -> Tuple[Color, ...]:
+    def read(self, file_path: Path) -> Tuple[Color, ...]:
         """Extract a set of colors from a given file"""
 
 

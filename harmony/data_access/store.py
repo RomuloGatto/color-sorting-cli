@@ -1,12 +1,16 @@
 import csv
 from contextlib import AbstractContextManager
-from typing import List, Set, Tuple
+from typing import List, Optional, Set, Tuple
 
 from harmony.core.constants import Resources, TableNames
 from harmony.core.models import HSL, ColorName
 from harmony.core.service_layer.converters import RGBToHSLConverter
 from harmony.core.utils import ResourceUtils, RGBUtils
-from harmony.data_access.adapters import ColorNameRepository, SQLiteSessionFactory
+from harmony.data_access.adapters import (
+    ColorNameRepository,
+    SessionFactory,
+    SQLiteSessionFactory,
+)
 from harmony.data_access.loggers import ColorNamesStorageLogger
 
 
@@ -15,15 +19,21 @@ class ColorNamesStorage(AbstractContextManager):
 
     _logger = ColorNamesStorageLogger()
 
-    def __init__(self):
-        self._initialize()
+    def __init__(self, session_factory: Optional[SessionFactory] = None):
+        self._initialize(session_factory)
 
-    def __enter__(self) -> "ColorNamesStorage":
-        self._initialize()
+    def __enter__(
+        self, session_factory: Optional[SessionFactory] = None
+    ) -> "ColorNamesStorage":
+        self._initialize(session_factory)
         return self
 
-    def _initialize(self) -> None:
-        self._session = SQLiteSessionFactory().make_session()
+    def _initialize(self, session_factory: Optional[SessionFactory] = None) -> None:
+        if session_factory is not None:
+            self._session = session_factory.make_session()
+        else:
+            self._session = SQLiteSessionFactory().make_session()
+
         self._repository = ColorNameRepository(self._session)
 
     def __exit__(self, *_args, **_kwargs) -> None:
@@ -48,7 +58,7 @@ class ColorNamesStorage(AbstractContextManager):
             )
             return self._get_first_name_found(hsl)
 
-        self.store()
+        self._store()
         return self.get_color_name_by_hsl(hsl)
 
     def _color_names_were_found(self, hsl: HSL) -> bool:
@@ -104,8 +114,7 @@ class ColorNamesStorage(AbstractContextManager):
     def _get_luminosity_index_in_row() -> int:
         return 3
 
-    def store(self) -> None:
-        """Store the color names from the the CSV file to the SQLite database"""
+    def _store(self) -> None:
         with open(
             ResourceUtils.get_resource(Resources.COLOR_NAMES_CSV), "r", encoding="utf8"
         ) as csv_file:

@@ -1,7 +1,8 @@
 import logging
 import multiprocessing
 from math import sqrt
-from typing import IO, List, Tuple
+from pathlib import Path
+from typing import List, Tuple
 
 from PIL import Image
 
@@ -21,8 +22,8 @@ class ImageFileReading(FileReadingStrategy):
     def __init__(self) -> None:
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    def read(self, file: IO) -> Tuple[Color, ...]:
-        image = self._get_image_from_file(file)
+    def read(self, file_path: Path) -> Tuple[Color, ...]:
+        image = self._get_image_from_file(file_path)
 
         with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
             colors: List[Color] = pool.map(
@@ -110,8 +111,8 @@ class ImageFileReading(FileReadingStrategy):
                 RGBToHSLConverter().make_hsl_from_rgb(rgb_values)
             )
 
-    def _get_image_from_file(self, file: IO) -> Image.Image:
-        return Image.open(file).resize(self._get_size_to_resize(), Image.NEAREST)
+    def _get_image_from_file(self, file_path: Path) -> Image.Image:
+        return Image.open(file_path).resize(self._get_size_to_resize(), Image.NEAREST)
 
     def _get_size_to_resize(self):
         return (self._image_side_length(),) * 2

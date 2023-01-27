@@ -25,7 +25,7 @@ class SortingStrategy(ABC):
             colors_to_sort (List[Color]): the colors to be sorted
 
         Returns:
-            Tuple[Color]: sorted set of colors
+            Tuple[Color, ...]: sorted set of colors
         """
 
 
@@ -39,7 +39,7 @@ class RGBSorting(SortingStrategy):
             colors_to_sort (List[Color]): the colors to be sorted
 
         Returns:
-            Tuple[Color]: sorted set of colors
+            Tuple[Color, ...]: sorted set of colors
         """
         colors_list = list(colors_to_sort)
         colors_list.sort(key=lambda color: self._get_rgb_values(color.rgb))
@@ -59,7 +59,7 @@ class HSVSorting(SortingStrategy):
             colors_to_sort (List[Color]): the colors to be sorted
 
         Returns:
-            Tuple[Color]: sorted set of colors
+            Tuple[Color, ...]: sorted set of colors
         """
         RGBtoHSVConverter()
 
@@ -81,7 +81,7 @@ class HSLSorting(SortingStrategy):
             colors_to_sort (List[Color]): the colors to be sorted
 
         Returns:
-            Tuple[Color]: sorted set of colors
+            Tuple[Color, ...]: sorted set of colors
         """
         colors_list = list(colors_to_sort)
         colors_list.sort(key=lambda color: self._get_hsl_values(color.rgb))
@@ -101,7 +101,7 @@ class LuminositySorting(SortingStrategy):
             colors_to_sort (List[Color]): the colors to be sorted
 
         Returns:
-            Tuple[Color]: sorted set of colors
+            Tuple[Color, ...]: sorted set of colors
         """
         colors_list = list(colors_to_sort)
         colors_list.sort(key=lambda color: self._get_luminosity(color.rgb))
@@ -124,7 +124,7 @@ class StepSorting(SortingStrategy):
             colors_to_sort (List[Color]): the colors to be sorted
 
         Returns:
-            Tuple[Color]: sorted set of colors
+            Tuple[Color, ...]: sorted set of colors
         """
         colors_list = list(colors_to_sort)
         colors_list.sort(
@@ -155,7 +155,7 @@ class AlternatedStepSorting(SortingStrategy):
             colors_to_sort (List[Color]): the colors to be sorted
 
         Returns:
-            Tuple[Color]: sorted set of colors
+            Tuple[Color, ...]: sorted set of colors
         """
         colors_list = list(colors_to_sort)
         colors_list.sort(
@@ -181,7 +181,7 @@ class HillbertSorting(SortingStrategy):
             colors_to_sort (List[Color]): the colors to be sorted
 
         Returns:
-            Tuple[Color]: sorted set of colors
+            Tuple[Color, ...]: sorted set of colors
         """
         colors_list = list(colors_to_sort)
         colors_list.sort(key=lambda color: self._get_hillbert_index(color.rgb))

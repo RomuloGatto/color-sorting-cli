@@ -36,8 +36,8 @@ class TestSortCommand:
         expected_message = "Colors sorted and saved to "
         actual_message = results.stdout
 
-        assert expected_exit_code == actual_exit_code
         assert expected_message in actual_message
+        assert expected_exit_code == actual_exit_code
 
     def test_passing_invalid_file(self, runner: CliRunner):
         """Test passing invalid file to CLI"""

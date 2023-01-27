@@ -1,7 +1,9 @@
-from typing import IO, TextIO, Tuple
+import logging
+from pathlib import Path
+from typing import Any, Dict, Tuple
 
 from harmony.color_sorting.constants import SortingStrategyName
-from harmony.core.interfaces import FileReadingStrategy, WritingStrategy
+from harmony.core.interfaces import WritingStrategy
 from harmony.core.models import Color
 from harmony.core.utils import (
     does_file_name_have_extension,
@@ -10,45 +12,140 @@ from harmony.core.utils import (
 )
 
 
-def get_sorted_file_path(
-    source_file: TextIO,
-    sorting_strategy: SortingStrategyName,
-    suffix: str,
-) -> str:
-    """Return the path to the file with the processed data
+class PathGenerator:
+    """Provide methods for generating"""
 
-    Args:
-        source_file (TextIO): original file
+    def __init__(self, suffix: str):
+        self._suffix = suffix
 
-    Returns:
-        str: path to the processed data file
-    """
-    if does_file_name_have_extension(source_file.name):
-        return (
-            f"{extract_extension_from_file_path(source_file.name)}"
-            + f"_{sorting_strategy}{suffix}"
-            + f"{get_extension_from_file_path(source_file.name)}"
-        )
-
-    return f"{source_file.name}_{sorting_strategy}"
-
-
-class ColorReader:
-    """Service for reading colors from file"""
-
-    def __init__(self, strategy: FileReadingStrategy) -> None:
-        self._strategy = strategy
-
-    def extract_from_file(self, colors_file: IO) -> Tuple[Color, ...]:
-        """Extracts a list of colors from a file
+    def get_sorted_file_path(
+        self,
+        source_file: Path,
+        sorting_strategy: SortingStrategyName,
+    ) -> str:
+        """Return the path to the file with the processed data
 
         Args:
-            file_path (str): path to the file with the colors
+            source_file (TextIO): original file
 
         Returns:
-            List[Color]: list of colors extracted
+            str: path to the processed data file
         """
-        return self._strategy.read(colors_file)
+        if does_file_name_have_extension(str(source_file)):
+            self._log_sorted_path_generated_with_extension(
+                source_file, sorting_strategy
+            )
+            return self._get_path_with_suffix_strategy_and_extension(
+                source_file, sorting_strategy
+            )
+
+        self._log_sorted_path_generated_without_extension(source_file, sorting_strategy)
+        return self._get_path_with_strategy_and_suffix(source_file, sorting_strategy)
+
+    def get_path_with_extension(self, file_path: Path, extension: str) -> str:
+        """Return the path to file with the given extension
+
+        Args:
+            source_file (TextIO): original file
+
+        Returns:
+            str: path to the converted file
+        """
+        if does_file_name_have_extension(str(file_path)):
+            self._log_changed_extension(file_path, extension)
+            return self._get_path_with_changed_extension(file_path, extension)
+
+        self._log_added_extension(file_path, extension)
+        return self._get_path_with_added_extension(file_path, extension)
+
+    def _log_sorted_path_generated_with_extension(
+        self, source_file: Path, sorting_strategy: SortingStrategyName
+    ) -> None:
+        return self._logger.info(
+            "sorted file path generated is %(final_path)s",
+            self._get_sorted_path_with_extension_log_data(
+                source_file, sorting_strategy
+            ),
+        )
+
+    def _get_sorted_path_with_extension_log_data(
+        self, source_file: Path, sorting_strategy: SortingStrategyName
+    ) -> Dict[str, Any]:
+        return {
+            "final_path": self._get_path_with_suffix_strategy_and_extension(
+                source_file, sorting_strategy
+            )
+        }
+
+    def _log_sorted_path_generated_without_extension(
+        self, source_file: Path, sorting_strategy: SortingStrategyName
+    ) -> None:
+        return self._logger.info(
+            "sorted file path generated is %(final_path)s",
+            self._get_sorted_path_without_extension_log_data(
+                source_file, sorting_strategy
+            ),
+        )
+
+    def _get_sorted_path_without_extension_log_data(
+        self, source_file: Path, sorting_strategy: SortingStrategyName
+    ) -> Dict[str, Any]:
+        return {
+            "final_path": self._get_path_with_strategy_and_suffix(
+                source_file, sorting_strategy
+            )
+        }
+
+    def _get_path_with_suffix_strategy_and_extension(
+        self, source_file: Path, sorting_strategy: SortingStrategyName
+    ) -> str:
+        return (
+            f"{extract_extension_from_file_path(str(source_file))}"
+            + f"_{sorting_strategy}{self._suffix}"
+            + f"{get_extension_from_file_path(str(source_file))}"
+        )
+
+    def _get_path_with_strategy_and_suffix(
+        self, source_file: Path, sorting_strategy: SortingStrategyName
+    ) -> str:
+        return f"{str(source_file)}_{sorting_strategy}{self._suffix}"
+
+    def _log_changed_extension(self, file_path: Path, extension: str) -> None:
+        self._logger.info(
+            "Path with extension changed to the passed one %(final_path)s",
+            self._get_path_with_changed_extension_log_data(file_path, extension),
+        )
+
+    def _get_path_with_changed_extension_log_data(
+        self, file_path: Path, extension: str
+    ) -> Dict[str, str]:
+        return {
+            "final_path": self._get_path_with_changed_extension(file_path, extension)
+        }
+
+    def _log_added_extension(self, file_path: Path, extension: str) -> None:
+        self._logger.info(
+            "Path with passed extension added %(final_path)s",
+            self._get_path_with_added_extension_log_data(file_path, extension),
+        )
+
+    def _get_path_with_added_extension_log_data(
+        self, file_path: Path, extension: str
+    ) -> Dict[str, str]:
+        return {"final_path": self._get_path_with_added_extension(file_path, extension)}
+
+    def _get_path_with_changed_extension(self, file_path: Path, extension: str) -> str:
+        return (
+            f"{extract_extension_from_file_path(str(file_path))}{self._suffix}."
+            + extension
+        )
+
+    def _get_path_with_added_extension(self, file_path: Path, extension: str) -> str:
+        return f"{str(file_path)}{self._suffix}.{extension}"
+
+    @property
+    def _logger(self) -> logging.Logger:
+        return logging.getLogger(self.__class__.__name__)
 
 
 class ColorWriter:

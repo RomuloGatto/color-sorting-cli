@@ -1,4 +1,5 @@
 from enum import Enum
+from pathlib import Path
 
 import typer
 
@@ -27,8 +28,13 @@ class SortingStrategyName(str, Enum):
 class SortCommandArguments:
     """Store the "sort" command arguments"""
 
-    colors_file: typer.FileText = typer.Argument(
-        ..., help="File with the colors to be sorted"
+    file_path: Path = typer.Argument(
+        ...,
+        help="File with the colors to be sorted",
+        exists=True,
+        file_okay=True,
+        readable=True,
+        resolve_path=True,
     )
     sorting_algorithm: SortingStrategyName = typer.Option(
         SortingStrategyName.HILLBERT.value,

@@ -1,5 +1,6 @@
 import re
-from typing import IO, Dict, List, Tuple, Type
+from pathlib import Path
+from typing import Dict, List, Tuple, Type
 
 from harmony.core.exceptions import InvalidColorException
 from harmony.core.interfaces import FileReadingStrategy, PlainTextReadingStrategy
@@ -16,8 +17,9 @@ class PlainTextFileReading(FileReadingStrategy):
     def __init__(self, must_generate_color_names: bool = True):
         self._must_generate_color_names = must_generate_color_names
 
-    def read(self, file: IO) -> Tuple[Color, ...]:
-        return self._make_colors_tuple(file.readlines())
+    def read(self, file_path: Path) -> Tuple[Color, ...]:
+        with file_path.open("r") as file:
+            return self._make_colors_tuple(file.readlines())
 
     def _make_colors_tuple(self, color_strings: List[str]) -> Tuple[Color, ...]:
         colors_list: List[Color] = []
