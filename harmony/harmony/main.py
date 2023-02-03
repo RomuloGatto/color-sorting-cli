@@ -6,6 +6,7 @@ import typer
 from harmony import __version__
 from harmony.color_sorting.commands import sort
 from harmony.from_image_reading.commands import image2txt
+from harmony.from_svg_reading.commands import svg2txt
 from harmony.harmony.adapters import HarmonyTyper
 from harmony.to_ase_convertion.commands import txt2ase
 from harmony.to_clr_convertion.commands import txt2clr
@@ -17,6 +18,7 @@ app.command()(txt2ase)
 app.command()(txt2clr)
 app.command()(txt2image)
 app.command()(image2txt)
+app.command()(svg2txt)
 
 
 def _display_version(context: typer.Context):

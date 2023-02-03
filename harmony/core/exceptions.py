@@ -21,3 +21,7 @@ class NoColorsFoundException(Exception):
 
 class InvalidColorFormatException(Exception):
     """Raised when the color format passed was not the expected"""
+
+
+class InvalidRegexException(Exception):
+    """Raised when a regex does not match when it should"""

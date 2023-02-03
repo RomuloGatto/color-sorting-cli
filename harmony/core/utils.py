@@ -1,9 +1,10 @@
 import os
+import re
 import struct
-from typing import Iterable, List
+from typing import Dict, Iterable, List, Optional, no_type_check
 
 from harmony.core.constants import ByteOrder
-from harmony.core.exceptions import NoExtensionFoundException
+from harmony.core.exceptions import InvalidRegexException, NoExtensionFoundException
 from harmony.core.models import RGB
 from harmony.typing import T
 
@@ -74,7 +75,7 @@ class HexcodeUtils:
     def convert_hexcode_from_3_to_6_chars_form(cls, hexcode: str) -> str:
         """Convert a hexcode string in 3 chars format to 6 chars format"""
         if cls._does_hexcode_have_not_7_digits(hexcode):
-            hexcode = f"{hexcode}{hexcode[1:]}"
+            hexcode = f"#{hexcode[1]*2}{hexcode[2]*2}{hexcode[3]*2}"
 
         return hexcode
 
@@ -85,7 +86,7 @@ class HexcodeUtils:
     @staticmethod
     def get_hexcode_from_rgb(rgb: RGB) -> str:
         """Return a hexcode string from a RGB object"""
-        return f"{int(rgb.red):02x}{int(rgb.green):02x}{int(rgb.blue):02x}"
+        return f"#{int(rgb.red):02x}{int(rgb.green):02x}{int(rgb.blue):02x}"
 
 
 class BytesUtils:
@@ -169,8 +170,30 @@ def extract_unique_values_from_iterable(iterable: Iterable[T]) -> Iterable[T]:
     """Returns the unique values from the passed iterable without losing its order"""
     uniques: List[T] = []
 
-    for value in iterable:
-        if value not in uniques:
-            uniques.append(value)
+    for value in filter(lambda value: value not in uniques, iterable):
+        uniques.append(value)
 
     return uniques
+
+
+class RegexHelper:
+    """Helps with regular expression operations"""
+
+    def __init__(self, pattern: str) -> None:
+        self.__pattern = re.compile(pattern)
+
+    @no_type_check
+    def get_raw_string_data(self, raw_string: str) -> Dict[str, str]:
+        """Extract the data from a given string based on `self.__pattern`"""
+        if not self._match_pattern(raw_string):
+            raise InvalidRegexException(
+                f"'{raw_string}' does not match with the pattern {self.__pattern}"
+            )
+
+        return self.__get_raw_string_match(raw_string).groupdict()
+
+    def _match_pattern(self, property_value: str) -> bool:
+        return re.match(self.__pattern, property_value) is not None
+
+    def __get_raw_string_match(self, raw_string: str) -> Optional[re.Match]:
+        return self.__pattern.match(raw_string)

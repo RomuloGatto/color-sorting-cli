@@ -56,9 +56,23 @@ class FileReadingStrategy(ABC):
         """Extract a set of colors from a given file"""
 
 
-class PlainTextReadingStrategy(ABC):
-    """Interface for a object resposible for converting a string to a Color object"""
+class StringReadingStrategy(ABC):
+    """Interface for strategies that extract a color from a given string"""
 
     @abstractmethod
-    def read(self, raw_string: str) -> Color:
-        """Convert a raw string containing the data of the color to a Color object"""
+    def read(self, property_value: str) -> Color:
+        """Convert the raw value passed into a Color object
+
+        Args:
+            property_value (str): value of the color property in a given element from a
+            SVG file
+
+        Returns:
+            Color: Color result
+        """
+
+    @classmethod
+    @abstractmethod
+    def match_pattern(cls, property_value: str) -> bool:
+        """Return True if the passed string can be processed by this strategy"""
+        raise NotImplementedError

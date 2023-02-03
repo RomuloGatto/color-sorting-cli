@@ -2,9 +2,9 @@ from typing import Callable
 
 import pytest
 
-from harmony.core.exceptions import InvalidFileException
+from harmony.core.exceptions import InvalidRegexException
 from harmony.core.models import RGB, Color
-from harmony.core.service_layer.plain_text_readings import RGBReading
+from harmony.core.service_layer.plain_text_readings import RGBTextReading
 
 
 class TestRGBReading:
@@ -46,14 +46,14 @@ class TestRGBReading:
         def result() -> None:
             self._when_read(arrangement)
 
-        self._then_should_raise_invalid_file(result)
+        self._then_should_raise_invalid_regex(result)
 
     def _given_invalid_rgb(self) -> str:
         return "rgb(722,323,-23)"
 
-    def _then_should_raise_invalid_file(self, result: Callable[[], None]) -> None:
-        with pytest.raises(InvalidFileException):
+    def _then_should_raise_invalid_regex(self, result: Callable[[], None]) -> None:
+        with pytest.raises(InvalidRegexException):
             result()
 
     def _when_read(self, arrangement: str) -> Color:
-        return RGBReading().read(arrangement)
+        return RGBTextReading().read(arrangement)

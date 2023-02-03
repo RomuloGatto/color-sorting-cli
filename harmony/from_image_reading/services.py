@@ -9,7 +9,7 @@ from PIL import Image
 from harmony.core.constants import ColorFormat
 from harmony.core.interfaces import FileReadingStrategy
 from harmony.core.models import HSL, RGB, Color
-from harmony.core.service_layer.converters import RGBToHSLConverter
+from harmony.core.service_layer import RGBToHSLConverter
 from harmony.core.utils import HexcodeUtils, extract_unique_values_from_iterable
 from harmony.data_access.store import ColorNamesStorage
 

@@ -1,8 +1,8 @@
 from harmony.core.models import RGB, Color
-from harmony.core.service_layer.plain_text_readings import HexcodeReading
+from harmony.core.service_layer.plain_text_readings import HexcodeTextReading
 
 
-class TestHexcodeReading:
+class TestHexcodeTextReading:
     """Tests for the hexcode lines reading strategy"""
 
     def test_reading_hexcode_without_description(self) -> None:
@@ -34,4 +34,4 @@ class TestHexcodeReading:
         assert result.description == "Danube"
 
     def _when_read(self, arrangement: str) -> Color:
-        return HexcodeReading().read(arrangement)
+        return HexcodeTextReading().read(arrangement)

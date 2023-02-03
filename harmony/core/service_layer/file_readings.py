@@ -1,15 +1,16 @@
 import re
+from itertools import dropwhile
 from pathlib import Path
-from typing import Dict, List, Tuple, Type
+from typing import Iterator, List, Tuple, Type
 
 from harmony.core.exceptions import InvalidColorException
-from harmony.core.interfaces import FileReadingStrategy, PlainTextReadingStrategy
+from harmony.core.interfaces import FileReadingStrategy, StringReadingStrategy
 from harmony.core.models import HSL, RGB, Color
-from harmony.core.service_layer.converters import RGBToHSLConverter
+from harmony.core.service_layer import RGBToHSLConverter
 from harmony.core.service_layer.plain_text_readings import (
-    HexcodeReading,
+    HexcodeTextReading,
     HSLTextReading,
-    RGBReading,
+    RGBTextReading,
 )
 from harmony.core.utils import extract_unique_values_from_iterable
 from harmony.data_access.store import ColorNamesStorage
@@ -37,20 +38,22 @@ class PlainTextFileReading(FileReadingStrategy):
         return self._make_color_from_string(raw_string.replace("\n", ""))
 
     def _make_color_from_string(self, color_string: str) -> Color:
-        for pattern, strategy in self._get_color_factory_mapping().items():
-            if re.compile(pattern).match(color_string):
-                return self._make_color(color_string, strategy())
+        for _, strategy in dropwhile(
+            lambda item: re.match(item[0], color_string) is None,
+            self._get_color_factory_mapping(),
+        ):
+            return self._make_color(color_string, strategy())
 
         raise InvalidColorException(
             color_string.replace("\n", "") + " does not match any valid format"
         )
 
-    def _get_color_factory_mapping(self) -> Dict[str, Type[PlainTextReadingStrategy]]:
-        return {
-            self._get_hexcode_pattern(): HexcodeReading,
-            self._get_rgb_pattern(): RGBReading,
-            self._get_hsl_pattern(): HSLTextReading,
-        }
+    def _get_color_factory_mapping(
+        self,
+    ) -> Iterator[Tuple[str, Type[StringReadingStrategy]]]:
+        yield self._get_hexcode_pattern(), HexcodeTextReading
+        yield self._get_rgb_pattern(), RGBTextReading
+        yield self._get_hsl_pattern(), HSLTextReading
 
     @staticmethod
     def _get_hexcode_pattern() -> str:
@@ -73,7 +76,7 @@ class PlainTextFileReading(FileReadingStrategy):
     def _make_color(
         self,
         color_string: str,
-        strategy: PlainTextReadingStrategy,
+        strategy: StringReadingStrategy,
     ):
         new_color = strategy.read(color_string)
 

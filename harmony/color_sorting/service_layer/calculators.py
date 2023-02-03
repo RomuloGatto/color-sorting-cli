@@ -8,7 +8,7 @@ from harmony.core.models import RGB
 class HillbertIndexCalculator:
     """Provide method for calculating the hillbert index of the color"""
 
-    # pylint: disable=too-many-locals,too-many-arguments
+    # pylint: disable=too-many-locals,too-many-arguments,too-many-branches
 
     def calculate(self, rgb: RGB) -> int:
         """Calculate the Hillbert Curve index for the color passed

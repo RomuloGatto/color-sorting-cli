@@ -10,7 +10,7 @@ from harmony.color_sorting.service_layer.converters import (
 from harmony.core import constants
 from harmony.core.math_utils import division_between
 from harmony.core.models import HSV, RGB, Color, ColorFormatModel, PerceivedLuminosity
-from harmony.core.service_layer.converters import RGBToHSLConverter
+from harmony.core.service_layer import RGBToHSLConverter
 from harmony.typing import Number
 
 

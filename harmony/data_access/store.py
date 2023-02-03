@@ -3,11 +3,12 @@ from contextlib import AbstractContextManager
 from typing import List, Optional, Set, Tuple
 
 from harmony.core.constants import Resources, TableNames
-from harmony.core.models import HSL, ColorName
-from harmony.core.service_layer.converters import RGBToHSLConverter
+from harmony.core.db_models import HSL, ColorName
+from harmony.core.service_layer import RGBToHSLConverter
 from harmony.core.utils import ResourceUtils, RGBUtils
 from harmony.data_access.adapters import (
     ColorNameRepository,
+    DatabaseSession,
     SessionFactory,
     SQLiteSessionFactory,
 )
@@ -29,12 +30,16 @@ class ColorNamesStorage(AbstractContextManager):
         return self
 
     def _initialize(self, session_factory: Optional[SessionFactory] = None) -> None:
-        if session_factory is not None:
-            self._session = session_factory.make_session()
-        else:
-            self._session = SQLiteSessionFactory().make_session()
-
+        self._session = self._make_session(session_factory)
         self._repository = ColorNameRepository(self._session)
+
+    def _make_session(
+        self, session_factory: Optional[SessionFactory] = None
+    ) -> DatabaseSession:
+        if session_factory is not None:
+            return session_factory.make_session()
+
+        return SQLiteSessionFactory().make_session()
 
     def __exit__(self, *_args, **_kwargs) -> None:
         self.close()

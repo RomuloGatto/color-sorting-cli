@@ -4,7 +4,7 @@ import pytest
 
 from harmony.core.exceptions import InvalidColorFormatException
 from harmony.core.models import HSL, RGB
-from harmony.core.service_layer.converters import HSLToRGBConverter
+from harmony.core.service_layer.hsl_to_rgb_converter import HSLToRGBConverter
 
 
 class TestHSLToRGBConverter:

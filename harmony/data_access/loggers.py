@@ -1,7 +1,8 @@
 import logging
 from typing import Any, Dict, Tuple
 
-from harmony.core.models import HSL, ColorName
+from harmony.core.db_models import ColorName
+from harmony.core.models import HSL
 
 
 class ColorNamesStorageLogger:

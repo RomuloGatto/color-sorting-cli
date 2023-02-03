@@ -4,8 +4,9 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Set, Tuple
 
 from harmony.core.constants import Resources, TableNames
+from harmony.core.db_models import ColorName, DataModel
 from harmony.core.exceptions import InvalidObjectToSaveException
-from harmony.core.models import ColorName, DataModel, InsertQueryData
+from harmony.core.models import InsertQueryData
 from harmony.core.utils import ResourceUtils
 
 

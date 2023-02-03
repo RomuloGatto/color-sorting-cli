@@ -28,16 +28,37 @@ class ColorFormatModel(ABC):
 
     def get_field_values(self) -> Tuple[Number, ...]:
         """Return all values from all numeric field in the model"""
+        field_values: List[Number] = self._get_integer_fields()
+        field_values.extend(self._get_float_fields())
+        return tuple(field_values)
+
+    def _get_integer_fields(self) -> List[Number]:
         field_values: List[Number] = []
 
-        for field in vars(self.__class__)["__dataclass_fields__"].keys():
-            if isinstance(getattr(self, field), int):
-                field_values.append(getattr(self, field))
+        for field in filter(
+            self._is_field_integer,
+            vars(self.__class__)["__dataclass_fields__"].keys(),
+        ):
+            field_values.append(getattr(self, field))
 
-            if isinstance(getattr(self, field), float):
-                field_values.append(self._get_decimal_field_as_int(field))
+        return field_values
 
-        return tuple(field_values)
+    def _get_float_fields(self) -> List[Number]:
+        field_values: List[Number] = []
+
+        for field in filter(
+            self._is_field_float,
+            vars(self.__class__)["__dataclass_fields__"].keys(),
+        ):
+            field_values.append(self._get_decimal_field_as_int(field))
+
+        return field_values
+
+    def _is_field_integer(self, field: Any) -> bool:
+        return isinstance(getattr(self, field), int)
+
+    def _is_field_float(self, field: Any) -> bool:
+        return isinstance(getattr(self, field), float)
 
     def _get_decimal_field_as_int(self, field: str) -> int:
         return int(getattr(self, field) * 100)
@@ -175,18 +196,6 @@ class Color:
 
     def __hash__(self) -> int:
         return hash((self.rgb_red, self.rgb_green, self.rgb_blue))
-
-
-class DataModel(ABC):
-    """Interface for the data table models"""
-
-
-@dataclass
-class ColorName(DataModel):
-    """Store the data of the color name"""
-
-    name: str
-    hsl: HSL
 
 
 @dataclass

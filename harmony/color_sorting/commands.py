@@ -2,7 +2,6 @@
 from pathlib import Path
 
 import rich
-import typer
 
 from harmony.color_sorting.constants import (
     Directions,
@@ -29,23 +28,16 @@ def sort(
     generate_names: bool = CommonArguments.generate_names,
 ) -> None:
     """Entry point for generating a file with the sorted colors"""
-    try:
-        colors = FileColorReader(PlainTextFileReading(generate_names)).extract_colors(
-            file_path
-        )
-        sorted_colors = ColorSorter(make_sorting_strategy(sorting_algorithm)).sort(
-            set(colors), direction
-        )
+    colors = FileColorReader(PlainTextFileReading(generate_names)).extract_colors(
+        file_path
+    )
+    sorted_colors = ColorSorter(make_sorting_strategy(sorting_algorithm)).sort(
+        set(colors), direction
+    )
 
-        final_file_path = PathGenerator(suffix).get_sorted_file_path(
-            file_path, sorting_algorithm
-        )
-        ColorWriter(PlainTextWriting(color_format)).write(
-            sorted_colors, final_file_path
-        )
+    final_file_path = PathGenerator(suffix).get_sorted_file_path(
+        file_path, sorting_algorithm
+    )
+    ColorWriter(PlainTextWriting(color_format)).write(sorted_colors, final_file_path)
 
-        rich.print(f"[green]Colors sorted and saved to {final_file_path}")
-
-    except Exception as exception:
-        rich.print(f"[bright_red] ERROR: {exception}")
-        raise typer.Exit(code=1)
+    rich.print(f"[green]Colors sorted and saved to {final_file_path}")

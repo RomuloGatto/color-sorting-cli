@@ -1,5 +1,7 @@
+import inspect
 from typing import Any, Callable, Dict, Optional, Type, Union
 
+import rich
 import typer
 from typer import core, models
 
@@ -36,12 +38,24 @@ class HarmonyTyper(typer.Typer):
         ) -> models.CommandFunctionType:
             command.__doc__ = self._add_version(command)
 
+            def print_error_wrapper(*args, **kwargs):
+                try:
+                    command(*args, **kwargs)
+
+                except Exception as exception:
+                    rich.print(f"[bright_red] ERROR: {exception}")
+                    raise typer.Exit(code=1)
+
+            print_error_wrapper.__name__ = command.__name__
+            print_error_wrapper.__doc__ = command.__doc__
+            setattr(print_error_wrapper, "__signature__", inspect.signature(command))
+
             self.registered_commands.append(
                 models.CommandInfo(
                     name=name,
                     cls=cls,
                     context_settings=context_settings,
-                    callback=command,
+                    callback=print_error_wrapper,
                     help=help,
                     epilog=epilog,
                     short_help=short_help,

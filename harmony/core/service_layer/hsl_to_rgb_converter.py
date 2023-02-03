@@ -1,8 +1,6 @@
-import logging
-from typing import Any, Callable, Dict
+from itertools import dropwhile
+from typing import Callable, Iterator, Tuple
 
-from harmony.core.calculation_models import HueData, SaturationData
-from harmony.core.core_utils import deprecate
 from harmony.core.exceptions import InvalidColorFormatException
 from harmony.core.interfaces import ColorFormatConverter
 from harmony.core.math_utils import (
@@ -12,94 +10,17 @@ from harmony.core.math_utils import (
     multiplication_between,
 )
 from harmony.core.models import HSL, RGB
-from harmony.core.service_layer.calculators import HueCalculator, SaturationCalculator
-
-
-class RGBToHSLConverter(ColorFormatConverter[RGB, HSL]):
-    """Converter to convert RGB to HSL"""
-
-    def __init__(self):
-        self._logger = logging.getLogger(self.__class__.__name__)
-        self.make_hsl_from_rgb = deprecate(self.convert)
-
-    def convert(self, original_format: RGB) -> HSL:
-        self._logger.info(
-            self._get_converted_log_message(),
-            self._get_converted_log_data(original_format),
-        )
-
-        return HSL(
-            self._get_hue_from_rgb_as_integer(original_format),
-            SaturationCalculator().calculate(SaturationData.from_rgb(original_format)),
-            self.calculate_luminosity(original_format),
-        )
-
-    def _get_hue_from_rgb_as_integer(self, rgb: RGB) -> int:
-        return int(self._get_hue_from_rgb(rgb))
-
-    @staticmethod
-    def _get_hue_from_rgb(rgb: RGB) -> float:
-        return HueCalculator().calculate(HueData.from_rgb(rgb))
-
-    @staticmethod
-    def _get_saturation_from_rgb(rgb: RGB) -> float:
-        return SaturationCalculator().calculate(SaturationData.from_rgb(rgb))
-
-    @staticmethod
-    def _get_converted_log_message() -> str:
-        return (
-            "RGB(%(red)d, %(green)d, %(blue)d) converted to "
-            + "HSL(%(hue)d, %(saturation).2f, %(luminosity).2f)"
-        )
-
-    def _get_converted_log_data(self, rgb: RGB) -> Dict[str, Any]:
-        return {
-            "red": rgb.red,
-            "green": rgb.green,
-            "blue": rgb.blue,
-            "hue": HueCalculator().calculate(HueData.from_rgb(rgb)),
-            "saturation": SaturationCalculator().calculate(
-                SaturationData.from_rgb(rgb)
-            ),
-            "luminosity": self.calculate_luminosity(rgb),
-        }
-
-    def calculate_luminosity(self, rgb: RGB) -> float:
-        """Calculate the component "luminosity" from HSL
-
-        Args:
-            rgb (RGB): RGB of the color to calculate luminosity
-
-        Returns:
-            float: luminosity value
-        """
-        return self._sum_of_biggest_and_the_smallest(rgb) / 2
-
-    def _sum_of_biggest_and_the_smallest(self, rgb: RGB) -> float:
-        return self._get_biggest_value(rgb) + self._get_smallest_value(rgb)
-
-    def _get_biggest_value(self, rgb: RGB) -> float:
-        return max(
-            rgb.red_as_percentage,
-            rgb.green_as_percentage,
-            rgb.blue_as_percentage,
-        )
-
-    def _get_smallest_value(self, rgb: RGB) -> float:
-        return min(
-            rgb.red_as_percentage,
-            rgb.green_as_percentage,
-            rgb.blue_as_percentage,
-        )
 
 
 class HSLToRGBConverter(ColorFormatConverter[HSL, RGB]):
     """Converts HSL objects into RGB objects"""
 
     def convert(self, original_format: HSL) -> RGB:
-        for is_condition_true, convert in self._get_rgb_factory_mapping().items():
-            if is_condition_true(original_format.hue):
-                return convert(original_format)
+        for _, convert in dropwhile(
+            lambda item: not item[0](original_format.hue),
+            self._get_rgb_factory_mapping(),
+        ):
+            return convert(original_format)
 
         raise InvalidColorFormatException(
             f"Hue must be between 0 and 360, got {original_format.hue}"
@@ -107,15 +28,13 @@ class HSLToRGBConverter(ColorFormatConverter[HSL, RGB]):
 
     def _get_rgb_factory_mapping(
         self,
-    ) -> Dict[Callable[[int], bool], Callable[[HSL], RGB]]:
-        return {
-            lambda hue: 0 <= hue < 60: self._calculate_ba0,
-            lambda hue: 60 <= hue < 120: self._calculate_ab0,
-            lambda hue: 120 <= hue < 180: self._calculate_0ba,
-            lambda hue: 180 <= hue < 240: self._calculate_0ab,
-            lambda hue: 240 <= hue < 300: self._calculate_a0b,
-            lambda hue: 300 <= hue < 360: self._calculate_b0a,
-        }
+    ) -> Iterator[Tuple[Callable[[int], bool], Callable[[HSL], RGB]]]:
+        yield lambda hue: 0 <= hue < 60, self._calculate_ba0
+        yield lambda hue: 60 <= hue < 120, self._calculate_ab0
+        yield lambda hue: 120 <= hue < 180, self._calculate_0ba
+        yield lambda hue: 180 <= hue < 240, self._calculate_0ab
+        yield lambda hue: 240 <= hue < 300, self._calculate_a0b
+        yield lambda hue: 300 <= hue < 360, self._calculate_b0a
 
     def _calculate_ba0(self, hsl_values: HSL) -> RGB:
         return RGB(

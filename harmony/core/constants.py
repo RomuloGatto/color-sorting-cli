@@ -78,6 +78,19 @@ def make_file_path_argument(helping_text: str) -> Any:
     )
 
 
+def make_file_or_dir_path_argument(helping_text: str) -> Any:
+    """Returns a typer argument for a file path with the passed helping text"""
+    return typer.Argument(
+        ...,
+        exists=True,
+        file_okay=True,
+        dir_okay=True,
+        readable=True,
+        resolve_path=True,
+        help=helping_text,
+    )
+
+
 class CommonArguments:
     """Store the arguments common to more than one command"""
 
@@ -95,9 +108,19 @@ class CommonArguments:
         help="The format the colors will be written in the output file",
     )
     file_path: Path = make_file_path_argument("File to be converted")
+    file_or_dir_path: Path = make_file_or_dir_path_argument(
+        "File or directory to extract the colors from"
+    )
     suffix: str = typer.Option(
         "",
         "--suffix",
         "-s",
         help="Suffix to add to the name of the output file",
+    )
+    recursively: bool = typer.Option(
+        False,
+        "--recursively",
+        "-r",
+        help="Whether it should read the files recursively, in case a directory was "
+        + "passed",
     )

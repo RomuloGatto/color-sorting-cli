@@ -1,9 +1,6 @@
 # pylint: disable=too-many-arguments,too-many-locals
 from pathlib import Path
 
-import rich
-import typer
-
 from harmony.core.command_utils import CommandUtils
 from harmony.core.constants import CommonArguments
 from harmony.to_image_convertion.constants import TXT2ImageCommandArguments
@@ -16,9 +13,4 @@ def txt2image(
 ):
     """Command to generate a color palette with the visual representation of the colors
     especified in the passed file"""
-    try:
-        CommandUtils(PNGWritting(), suffix).convert_txt_file(file_path)
-
-    except Exception as exception:
-        rich.print(f"[bright_red] ERROR: {exception}")
-        raise typer.Exit(code=1)
+    CommandUtils(PNGWritting(), suffix).convert_txt_file(file_path)
