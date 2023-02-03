@@ -1,12 +1,98 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import Any, Dict, Tuple
+from functools import total_ordering
+from typing import Any, Dict, List, Tuple, no_type_check
 
 from harmony.core import constants
+from harmony.typing import Number, T
 
 
-@dataclass
-class RGB:
+@total_ordering
+class ColorFormatModel(ABC):
+    """Interface for the color format models"""
+
+    def __hash__(self) -> int:
+        return hash(self.get_field_values())
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, self.__class__):
+            return self.get_field_values() == other.get_field_values()
+
+        raise TypeError(f"'==' not supported between {type(other)} and {type(self)}")
+
+    def __lt__(self, other: object) -> bool:
+        if isinstance(other, self.__class__):
+            return self.get_field_values() < other.get_field_values()
+
+        raise TypeError(f"'<' not supported between {type(other)} and {type(self)}")
+
+    def get_field_values(self) -> Tuple[Number, ...]:
+        """Return all values from all numeric field in the model"""
+        field_values: List[Number] = []
+
+        for field in vars(self.__class__)["__dataclass_fields__"].keys():
+            if isinstance(getattr(self, field), int):
+                field_values.append(getattr(self, field))
+
+            if isinstance(getattr(self, field), float):
+                field_values.append(self._get_decimal_field_as_int(field))
+
+        return tuple(field_values)
+
+    def _get_decimal_field_as_int(self, field: str) -> int:
+        return int(getattr(self, field) * 100)
+
+    @no_type_check
+    @classmethod
+    def from_color_format_model(cls: T, value: "ColorFormatModel") -> T:
+        """Convert a generic ColorFormatModel to a specific one
+
+        Args:
+            cls (T): specific ColorFormatModel to convert to
+            value (ColorFormatModel): generic ColorFormatModel
+
+        Raises:
+            TypeError: when the convertion is not possible
+
+        Returns:
+            T: the converted object
+        """
+        if isinstance(value, cls):
+            return value
+
+        raise TypeError(f"Unable to convert {type(value)} to {cls.__name__}")
+
+
+@dataclass(eq=False)
+class SteppedHueValuePerceivedLuminosity(ColorFormatModel):
+    """Model for the stepped hue, perceived luminosity and stepped value"""
+
+    stepped_hue: int
+    perceived_luminosity: float
+    stepped_value: int
+
+    def __hash__(self) -> int:
+        return hash((self.stepped_hue, self.perceived_luminosity, self.stepped_value))
+
+
+@dataclass(eq=False)
+class HSV(ColorFormatModel):
+    """Model for the HSV values of a color"""
+
+    hue: int
+    saturation: float
+    value: float
+
+
+@dataclass(eq=False)
+class PerceivedLuminosity(ColorFormatModel):
+    """Model for the perceived luminosity of the color"""
+
+    value: float
+
+
+@dataclass(eq=False)
+class RGB(ColorFormatModel):
     """Model for the RGB format of color"""
 
     red: int
@@ -32,13 +118,23 @@ class RGB:
         return self.blue / constants.MAXIMUM_RGB_VALUE
 
 
+@dataclass(eq=False)
+class HSL(ColorFormatModel):
+    """Store the data of the HSL of a color"""
+
+    hue: int
+    saturation: float
+    luminosity: float
+
+
 @dataclass
 class Color:
     """Model for the color"""
 
     rgb: RGB
+    hsl: HSL
     hexcode: str
-    original_format: str
+    original_format: constants.ColorFormat
     description: str
 
     @property
@@ -56,17 +152,29 @@ class Color:
         """Return the value of blue from the RGB of the color"""
         return self.rgb.blue
 
+    @property
+    def hsl_hue(self) -> int:
+        """Return the value of hue from the HSL of the color"""
+        return self.hsl.hue
+
+    @property
+    def hsl_saturation(self) -> float:
+        """Return the value of saturation from the HSL of the color"""
+        return self.hsl.saturation
+
+    @property
+    def hsl_luminosity(self) -> float:
+        """Return the value of luminosity from the HSL of the color"""
+        return self.hsl.luminosity
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, self.__class__):
+            return self.rgb == other.rgb and self.hsl == other.hsl
+
+        raise TypeError(f"'==' not supported between {type(other)} and {type(self)}")
+
     def __hash__(self) -> int:
         return hash((self.rgb_red, self.rgb_green, self.rgb_blue))
-
-
-@dataclass
-class HSL:
-    """Store the data of the HSL of a color"""
-
-    hue: int
-    saturation: float
-    luminosity: float
 
 
 class DataModel(ABC):

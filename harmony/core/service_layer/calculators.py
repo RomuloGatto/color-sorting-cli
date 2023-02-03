@@ -4,7 +4,7 @@ from harmony.core.calculation_models import HueData, SaturationData
 from harmony.core.math_utils import (
     are_almost_equal,
     difference_between,
-    quotient_between,
+    division_between,
 )
 
 
@@ -49,7 +49,7 @@ class HueCalculator:
         self._logger.info("Calculating case 1, cause red value is the biggest")
 
         return (
-            quotient_between(
+            division_between(
                 difference_between(data.green_as_percentage, data.blue_as_percentage),
                 data.difference_between_biggest_and_smallest,
             )
@@ -60,7 +60,7 @@ class HueCalculator:
         self._logger.info("Calculating case 2, cause green value is the biggest")
 
         return (
-            quotient_between(
+            division_between(
                 difference_between(data.blue_as_percentage, data.red_as_percentage),
                 data.difference_between_biggest_and_smallest,
             )
@@ -71,7 +71,7 @@ class HueCalculator:
         self._logger.info("Calculating case 3, cause blue value is the biggest")
 
         return (
-            quotient_between(
+            division_between(
                 difference_between(data.red_as_percentage, data.green_as_percentage),
                 data.difference_between_biggest_and_smallest,
             )

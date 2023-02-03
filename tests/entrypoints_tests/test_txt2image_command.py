@@ -30,7 +30,7 @@ class TestTXT2ImageCommand:
         temporary_file_path = get_temporary_file_path()
 
         with open(temporary_file_path, "w", encoding="utf8") as file:
-            file.write("(12, 132, 0) some color")
+            file.write("RGB(12, 132, 0) some color")
 
         return temporary_file_path
 

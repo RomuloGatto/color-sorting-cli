@@ -17,3 +17,7 @@ class NoExtensionFoundException(Exception):
 
 class NoColorsFoundException(Exception):
     """Raised when no color was extracted during the reading"""
+
+
+class InvalidColorFormatException(Exception):
+    """Raised when the color format passed was not the expected"""

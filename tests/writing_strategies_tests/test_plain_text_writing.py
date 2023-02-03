@@ -3,7 +3,7 @@ from typing import Tuple
 
 from harmony.color_sorting.service_layer.writing_strategies import PlainTextWriting
 from harmony.core.constants import ColorFormat
-from harmony.core.models import RGB, Color
+from harmony.core.models import HSL, RGB, Color
 from tests.helpers import get_temporary_file_path
 
 
@@ -70,6 +70,36 @@ class TestPlainTextWriting:
         assert expected_color_string in result
         assert unexpected_color_string not in result
 
+    def test_writing_as_hsl(self) -> None:
+        """Test writing colors as HSL"""
+        arrangement = self._given_colors()
+        result = self._when_passed_writing_as_hsl(arrangement)
+        self._then_should_write_as_hsl(result)
+
+    def _when_passed_writing_as_hsl(self, arrangement: Tuple[Color, ...]) -> str:
+        temporary_file = get_temporary_file_path()
+        strategy = PlainTextWriting(ColorFormat.HSL)
+
+        strategy.write(arrangement, temporary_file)
+
+        colors_file_content: str
+
+        with open(temporary_file, "r", encoding="utf8") as colors_file:
+            colors_file_content = colors_file.read()
+
+        os.remove(temporary_file)
+
+        return colors_file_content
+
+    def _then_should_write_as_hsl(self, result: str) -> None:
+        expected_color_string = "HSL(2, 78%, 56%)"
+        unexpected_color_string1 = "RGB(235, 61, 52)"
+        unexpected_color_string2 = "#eb3d34"
+
+        assert expected_color_string in result
+        assert unexpected_color_string1 not in result
+        assert unexpected_color_string2 not in result
+
     def test_write_colors_as_same_as_input(self) -> None:
         """Test writing colors to file"""
         arrangement = self._given_colors()
@@ -94,11 +124,14 @@ class TestPlainTextWriting:
         return colors_file_content
 
     def _then_should_write_to_new_file_as_same_as_input(self, result: str) -> None:
-        expected_color_string1 = "#eb3d34"
-        unexpected_color_string1 = "(235, 61, 52)"
+        expected_color_string1 = "#eb3d34 red\n"
+        unexpected_color_string1 = "RGB(235, 61, 52) red\n"
 
-        expected_color_string2 = "(75, 214, 47)"
-        unexpected_color_string2 = "#4bd62f"
+        expected_color_string2 = "RGB(75, 214, 47) green\n"
+        unexpected_color_string2 = "HSL(109, 78%, 51%) green\n"
+
+        expected_color_string3 = "HSL(28, 98%, 42%) orange\n"
+        unexpected_color_string3 = "#d46804 orange\n"
 
         assert expected_color_string1 in result
         assert unexpected_color_string1 not in result
@@ -106,32 +139,30 @@ class TestPlainTextWriting:
         assert expected_color_string2 in result
         assert unexpected_color_string2 not in result
 
+        assert expected_color_string3 in result
+        assert unexpected_color_string3 not in result
+
     def _given_colors(self) -> Tuple[Color, ...]:
-        rgb1 = RGB(235, 61, 52)
-        hexcode1 = "#eb3d34"
-        color1 = Color(
-            rgb=rgb1,
-            hexcode=hexcode1,
-            original_format=ColorFormat.HEXCODE,
-            description="red",
+        return (
+            Color(
+                rgb=RGB(235, 61, 52),
+                hsl=HSL(2, 0.78, 0.56),
+                hexcode="#eb3d34",
+                original_format=ColorFormat.HEXCODE,
+                description="red",
+            ),
+            Color(
+                rgb=RGB(75, 214, 47),
+                hsl=HSL(109, 0.78, 0.51),
+                hexcode="#4bd62f",
+                original_format=ColorFormat.RGB,
+                description="green",
+            ),
+            Color(
+                rgb=RGB(212, 104, 4),
+                hsl=HSL(28, 0.98, 0.42),
+                hexcode="#d46804",
+                original_format=ColorFormat.HSL,
+                description="orange",
+            ),
         )
-
-        rgb2 = RGB(75, 214, 47)
-        hexcode2 = "#4bd62f"
-        color2 = Color(
-            rgb=rgb2,
-            hexcode=hexcode2,
-            original_format=ColorFormat.RGB,
-            description="green",
-        )
-
-        rgb3 = RGB(212, 104, 4)
-        hexcode3 = "#d46804"
-        color3 = Color(
-            rgb=rgb3,
-            hexcode=hexcode3,
-            original_format=ColorFormat.HEXCODE,
-            description="orange",
-        )
-
-        return (color1, color2, color3)

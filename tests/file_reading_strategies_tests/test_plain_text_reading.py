@@ -28,7 +28,7 @@ class TestPlainTextFileReading:
         temporary_file_path = get_temporary_file_path()
 
         with open(temporary_file_path, "w", encoding="utf8") as colors_file:
-            colors_file.write("#165cc4 Blue\n" + "(196, 22, 190) Magenta")
+            colors_file.write("#165cc4 Blue\n" + "rgb(196, 22, 190) Magenta")
 
         return temporary_file_path
 
@@ -82,7 +82,7 @@ class TestPlainTextFileReading:
         temporary_file_path = get_temporary_file_path()
 
         with open(temporary_file_path, "w", encoding="utf8") as colors_file:
-            colors_file.write("(255, 0, 0)\n" + "#0500A5\n" + "(219, 0, 76)")
+            colors_file.write("RGB(255, 0, 0)\n" + "#0500A5\n" + "rgb(219, 0, 76)")
 
         return temporary_file_path
 

@@ -1,8 +1,8 @@
-from abc import ABC, abstractmethod
+from abc import ABC, ABCMeta, abstractmethod
 from pathlib import Path
-from typing import Tuple
+from typing import Generic, Tuple, TypeVar
 
-from harmony.core.models import RGB, Color
+from harmony.core.models import Color, ColorFormatModel
 
 
 class ColorReader(ABC):
@@ -28,12 +28,24 @@ class WritingStrategy(ABC):
         """
 
 
-class ColorFormatConverter(ABC):
-    """Interface for color format converters"""
+T = TypeVar("T", bound=ColorFormatModel)
+K = TypeVar("K", bound=ColorFormatModel)
+
+
+class ColorFormatConverter(Generic[T, K], metaclass=ABCMeta):
+    """Interface for color format converters
+
+    Generics:
+        T: original format to be converted
+        K: final format
+    """
 
     @abstractmethod
-    def convert(self, rgb: RGB) -> Tuple[float, ...]:
+    def convert(self, original_format: T) -> K:
         """Converts RGB to other color format"""
+
+
+del T, K
 
 
 class FileReadingStrategy(ABC):
@@ -48,5 +60,5 @@ class PlainTextReadingStrategy(ABC):
     """Interface for a object resposible for converting a string to a Color object"""
 
     @abstractmethod
-    def read(self, raw_string) -> Color:
+    def read(self, raw_string: str) -> Color:
         """Convert a raw string containing the data of the color to a Color object"""

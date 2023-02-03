@@ -4,7 +4,7 @@ from typing import List, Tuple
 
 from harmony.core.constants import ColorFormat
 from harmony.core.interfaces import FileReadingStrategy
-from harmony.core.models import RGB, Color
+from harmony.core.models import HSL, RGB, Color
 from harmony.core.service_layer.color_readers import FileColorReader
 from tests.helpers import get_temporary_file_path
 
@@ -16,12 +16,14 @@ class FakeFileReading(FileReadingStrategy):
         return (
             Color(
                 rgb=RGB(red=22, green=92, blue=196),
+                hsl=HSL(215, 0.89, 0.43),
                 hexcode="#165cc4",
                 original_format=ColorFormat.HEXCODE,
                 description="Blue",
             ),
             Color(
                 rgb=RGB(red=196, green=22, blue=190),
+                hsl=HSL(302, 0.89, 0.43),
                 hexcode="#c416be",
                 original_format=ColorFormat.RGB,
                 description="Magenta",

@@ -8,7 +8,7 @@ from PIL import Image
 
 from harmony.core.constants import ColorFormat
 from harmony.core.interfaces import FileReadingStrategy
-from harmony.core.models import RGB, Color
+from harmony.core.models import HSL, RGB, Color
 from harmony.core.service_layer.converters import RGBToHSLConverter
 from harmony.core.utils import HexcodeUtils, extract_unique_values_from_iterable
 from harmony.data_access.store import ColorNamesStorage
@@ -62,6 +62,7 @@ class ImageFileReading(FileReadingStrategy):
     ) -> Color:
         return Color(
             self._get_rgb_from_pixel(image, x_coordinate, y_coordinate),
+            self._get_hsl_from_pixel(image, x_coordinate, y_coordinate),
             self._get_hexcode_from_pixel(image, x_coordinate, y_coordinate),
             ColorFormat.RGB,
             self._generate_color_name_from_pixel(image, x_coordinate, y_coordinate),
@@ -78,6 +79,13 @@ class ImageFileReading(FileReadingStrategy):
         self, image: Image.Image, x_coordinate: int, y_coordinate: int
     ) -> str:
         return self._generate_color_name(
+            self._get_rgb_from_pixel(image, x_coordinate, y_coordinate)
+        )
+
+    def _get_hsl_from_pixel(
+        self, image: Image.Image, x_coordinate: int, y_coordinate: int
+    ) -> HSL:
+        return RGBToHSLConverter().convert(
             self._get_rgb_from_pixel(image, x_coordinate, y_coordinate)
         )
 
@@ -108,7 +116,7 @@ class ImageFileReading(FileReadingStrategy):
     def _generate_color_name(self, rgb_values: RGB):
         with ColorNamesStorage() as storage:
             return storage.get_color_name_by_hsl(
-                RGBToHSLConverter().make_hsl_from_rgb(rgb_values)
+                RGBToHSLConverter().convert(rgb_values)
             )
 
     def _get_image_from_file(self, file_path: Path) -> Image.Image:

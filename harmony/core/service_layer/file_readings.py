@@ -4,9 +4,13 @@ from typing import Dict, List, Tuple, Type
 
 from harmony.core.exceptions import InvalidColorException
 from harmony.core.interfaces import FileReadingStrategy, PlainTextReadingStrategy
-from harmony.core.models import RGB, Color
+from harmony.core.models import HSL, RGB, Color
 from harmony.core.service_layer.converters import RGBToHSLConverter
-from harmony.core.service_layer.plain_text_readings import HexcodeReading, RGBReading
+from harmony.core.service_layer.plain_text_readings import (
+    HexcodeReading,
+    HSLTextReading,
+    RGBReading,
+)
 from harmony.core.utils import extract_unique_values_from_iterable
 from harmony.data_access.store import ColorNamesStorage
 
@@ -45,6 +49,7 @@ class PlainTextFileReading(FileReadingStrategy):
         return {
             self._get_hexcode_pattern(): HexcodeReading,
             self._get_rgb_pattern(): RGBReading,
+            self._get_hsl_pattern(): HSLTextReading,
         }
 
     @staticmethod
@@ -54,8 +59,15 @@ class PlainTextFileReading(FileReadingStrategy):
     @staticmethod
     def _get_rgb_pattern() -> str:
         return (
-            "^[(][0-2]?[0-9]{1,2}[,][\\s]?[0-2]?[0-9]{1,2}[,][\\s]?[0-2]?"
-            + "[0-9]{1,2}[)]"
+            r"(rgb|RGB)\([\s]*[0-9]{1,3}[\s]*,[\s]*[0-9]{1,3}[\s]*"
+            + r",[\s]*[0-9]{1,3}[\s]*\)"
+        )
+
+    @staticmethod
+    def _get_hsl_pattern() -> str:
+        return (
+            r"(hsl|HSL)\([\s]*[0-9]{1,3}[\s]*,[\s]*[0-9]{1,3}[\s]*%[\s]*,"
+            + r"[\s]*[0-9]{1,3}[\s]*%[\s]*\)"
         )
 
     def _make_color(
@@ -80,8 +92,9 @@ class PlainTextFileReading(FileReadingStrategy):
     def _does_color_already_have_name(color: Color):
         return len(color.description) > 0
 
-    def _generate_color_name(self, rgb_values: RGB):
+    def _generate_color_name(self, rgb_values: RGB) -> str:
         with ColorNamesStorage() as storage:
-            return storage.get_color_name_by_hsl(
-                RGBToHSLConverter().make_hsl_from_rgb(rgb_values)
-            )
+            return storage.get_color_name_by_hsl(self._get_hsl_from_rgb(rgb_values))
+
+    def _get_hsl_from_rgb(self, rgb_values: RGB) -> HSL:
+        return HSL.from_color_format_model(RGBToHSLConverter().convert(rgb_values))

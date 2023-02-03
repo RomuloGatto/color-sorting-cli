@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 from harmony.core.constants import ColorFormat
-from harmony.core.models import RGB, Color
+from harmony.core.models import HSL, RGB, Color
 from harmony.from_image_reading.services import ImageFileReading
 from tests.helpers import TestResourceUtils
 
@@ -51,21 +51,32 @@ class TestImageReading:
     def _get_colors_expected_in_image() -> List[Color]:
         return [
             Color(
-                rgb=RGB(red=207, green=189, blue=177),
-                hexcode="cfbdb1",
+                rgb=RGB(red=4, green=86, blue=168),
+                hsl=HSL(
+                    hue=210,
+                    saturation=0.97,
+                    luminosity=0.33,
+                ),
+                hexcode="0456a8",
                 original_format=ColorFormat.RGB,
-                description="Silk",
+                description="Cobalt",
             ),
             Color(
-                rgb=RGB(red=34, green=32, blue=33),
-                hexcode="222021",
+                rgb=RGB(red=24, green=103, blue=160),
+                hsl=HSL(hue=205, saturation=0.85, luminosity=0.36),
+                hexcode="1867a0",
                 original_format=ColorFormat.RGB,
-                description="Liver",
+                description="Denim",
             ),
             Color(
-                rgb=RGB(red=44, green=106, blue=91),
-                hexcode="2c6a5b",
+                rgb=RGB(red=43, green=99, blue=150),
+                hsl=HSL(
+                    hue=208,
+                    saturation=0.71,
+                    luminosity=0.37,
+                ),
+                hexcode="2b6396",
                 original_format=ColorFormat.RGB,
-                description="Genoa",
+                description="Endeavour",
             ),
         ]

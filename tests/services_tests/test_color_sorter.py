@@ -4,7 +4,7 @@ from harmony.color_sorting.constants import Directions
 from harmony.color_sorting.service_layer.services import ColorSorter
 from harmony.color_sorting.service_layer.sorting_strategies import SortingStrategy
 from harmony.core.constants import ColorFormat
-from harmony.core.models import RGB, Color
+from harmony.core.models import HSL, RGB, Color
 
 
 class FakeStrategy(SortingStrategy):
@@ -52,6 +52,7 @@ class TestColorSorter:
     def _given_parameters(self) -> Set[Color]:
         color1 = Color(
             rgb=RGB(235, 61, 52),
+            hsl=HSL(2, 0.78, 0.56),
             hexcode="#eb3d34",
             original_format=ColorFormat.HEXCODE,
             description="red",
@@ -59,6 +60,7 @@ class TestColorSorter:
 
         color2 = Color(
             rgb=RGB(75, 214, 47),
+            hsl=HSL(109, 0.78, 0.51),
             hexcode="#4bd62f",
             original_format=ColorFormat.RGB,
             description="green",
@@ -66,6 +68,7 @@ class TestColorSorter:
 
         color3 = Color(
             rgb=RGB(212, 104, 4),
+            hsl=HSL(28, 0.98, 0.42),
             hexcode="#d46804",
             original_format=ColorFormat.HEXCODE,
             description="orange",

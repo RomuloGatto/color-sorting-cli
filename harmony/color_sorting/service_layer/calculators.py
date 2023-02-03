@@ -83,7 +83,6 @@ class HillbertIndexCalculator:
     def _get_start_and_end_indices(
         self, number_of_chunks: int, number_of_coordinates: int
     ) -> Tuple[int, int]:
-
         return 0, int(2 ** ((-number_of_chunks - 1) % number_of_coordinates))
 
     def _get_gray_decoded(self, start: int, mask: int, coordinate_chunk: int) -> int:

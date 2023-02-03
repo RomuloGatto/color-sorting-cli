@@ -28,9 +28,10 @@ class DefaultParameters:
 class ColorFormat(str, Enum):
     """Constants for the color formats"""
 
-    SAME_AS_INPUT: str = "input"
-    RGB: str = "rgb"
-    HEXCODE: str = "hexcode"
+    SAME_AS_INPUT = "input"
+    RGB = "rgb"
+    HEXCODE = "hexcode"
+    HSL = "hsl"
 
 
 class ByteOrder(str, Enum):

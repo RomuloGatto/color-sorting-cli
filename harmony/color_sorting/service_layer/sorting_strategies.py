@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Set, Tuple
+from typing import Any, Set, Tuple
 
 from harmony.color_sorting.service_layer.calculators import HillbertIndexCalculator
 from harmony.color_sorting.service_layer.converters import (
@@ -8,8 +8,8 @@ from harmony.color_sorting.service_layer.converters import (
     RGBToSteppedHueValueAndSteppedLuminosity,
 )
 from harmony.core import constants
-from harmony.core.math_utils import quotient_between
-from harmony.core.models import RGB, Color
+from harmony.core.math_utils import division_between
+from harmony.core.models import HSV, RGB, Color, ColorFormatModel, PerceivedLuminosity
 from harmony.core.service_layer.converters import RGBToHSLConverter
 from harmony.typing import Number
 
@@ -87,8 +87,8 @@ class HSLSorting(SortingStrategy):
         colors_list.sort(key=lambda color: self._get_hsl_values(color.rgb))
         return tuple(colors_list)
 
-    def _get_hsl_values(self, rgb: RGB) -> Tuple[Number, ...]:
-        return RGBToHSLConverter().convert(rgb)[:3]
+    def _get_hsl_values(self, rgb: RGB) -> ColorFormatModel:
+        return RGBToHSLConverter().convert(rgb)
 
 
 class LuminositySorting(SortingStrategy):
@@ -108,7 +108,10 @@ class LuminositySorting(SortingStrategy):
         return tuple(colors_list)
 
     def _get_luminosity(self, rgb: RGB) -> float:
-        return RGBToLuminosityConverter().convert(rgb)[0]
+        return self._get_perceived_luminosity_from_rgb(rgb).value
+
+    def _get_perceived_luminosity_from_rgb(self, rgb: RGB) -> PerceivedLuminosity:
+        return RGBToLuminosityConverter().convert(rgb)
 
 
 class StepSorting(SortingStrategy):
@@ -133,13 +136,23 @@ class StepSorting(SortingStrategy):
         return tuple(colors_list)
 
     def _get_stepped_hsv_and_luminosity_values(self, rgb: RGB) -> Tuple[Number, ...]:
-        hue, _, value = RGBtoHSVConverter().convert(rgb)
+        hsv = HSV.from_color_format_model(RGBtoHSVConverter().convert(rgb))
 
         return (
-            round(quotient_between(hue, constants.MAXIMUM_HUE_VALUE) * self.STEPS),
-            *RGBToLuminosityConverter().convert(rgb),
-            round(value * self.STEPS),
+            round(division_between(hsv.hue, constants.MAXIMUM_HUE_VALUE) * self.STEPS),
+            self._get_perceived_luminosity_value_from_rgb(rgb),
+            round(hsv.value * self.STEPS),
         )
+
+    @staticmethod
+    def _get_perceived_luminosity_value_from_rgb(rgb: RGB) -> float:
+        return PerceivedLuminosity.from_color_format_model(
+            RGBToLuminosityConverter().convert(rgb)
+        ).value
+
+    @staticmethod
+    def _is_hsv(value: Any) -> bool:
+        return isinstance(value, HSV)
 
 
 class AlternatedStepSorting(SortingStrategy):
@@ -167,7 +180,7 @@ class AlternatedStepSorting(SortingStrategy):
 
     def _get_stepped_alternatively_hsv_and_luminosity_values(
         self, rgb: RGB
-    ) -> Tuple[Number, ...]:
+    ) -> ColorFormatModel:
         return RGBToSteppedHueValueAndSteppedLuminosity(self.STEPS).convert(rgb)
 
 
