@@ -1,6 +1,0 @@
-HSL(84, 16%, 13%) Pine Tree
-#0f8fb3 Pacific Blue
-HSL(201, 11%, 6%) Mirage
-RGB(49, 6, 210) Medium Blue
-RGB(84, 62, 115) Meteorite
-#b52871 Deep Cerise
