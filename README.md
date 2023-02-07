@@ -20,7 +20,7 @@ Built over:
 
 ## Installing
 
-For installing the CLI, you can download the `.whl` file from [here](https://github.com/verocloud/color-sorting-cli/releases/download/1.0.0/harmony-1.0.0-py3-none-any.whl) and run the following command:
+For installing the CLI, you can download the `.whl` file from [here](https://github.com/verocloud/color-sorting-cli/releases/download/1.0.1/harmony-1.0.1-py3-none-any.whl) and run the following command:
 
 - On Windows:
 ```
