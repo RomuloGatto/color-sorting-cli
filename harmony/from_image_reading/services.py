@@ -120,6 +120,7 @@ class ImageFileReading(FileReadingStrategy):
             )
 
     def _get_image_from_file(self, file_path: Path) -> Image.Image:
+        Image.MAX_IMAGE_PIXELS = None
         return Image.open(file_path).resize(self._get_size_to_resize(), Image.NEAREST)
 
     def _get_size_to_resize(self):
