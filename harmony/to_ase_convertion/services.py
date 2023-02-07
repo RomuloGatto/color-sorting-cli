@@ -77,7 +77,10 @@ class ASEWriting(WritingStrategy):
         return palette_name_chunk
 
     def _get_palette_name_chunk_size_bytes(self) -> bytes:
-        return len(self._get_palette_name_as_bytes()).to_bytes(2, "big")
+        return self._get_palette_name_chunk_size().to_bytes(2, "big")
+
+    def _get_palette_name_chunk_size(self) -> int:
+        return len(self._get_palette_name_as_bytes()) + 2
 
     def _get_palette_name_chunk_count_bytes(self) -> bytes:
         return self._get_palette_name_chunk_count(

@@ -1,0 +1,6 @@
+#7BB066 banana
+#3FCA05 apple
+#B2B4A2 peter parker
+#6AC583 something
+#C4AF2F something 2
+#A351BA something 3
