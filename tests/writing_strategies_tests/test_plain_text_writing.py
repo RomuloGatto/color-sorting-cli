@@ -1,9 +1,8 @@
 import os
 from typing import Tuple
 
-from harmony.color_sorting.service_layer.writing_strategies import PlainTextWriting
-from harmony.core.constants import ColorFormat
-from harmony.core.models import HSL, RGB, Color
+from harmony import core
+from harmony.core_services.writing_strategies import PlainTextWriting
 from tests.helpers import get_temporary_file_path
 
 
@@ -17,10 +16,10 @@ class TestPlainTextWriting:
         self._then_should_write_to_new_file_as_rgb(result)
 
     def _when_colors_are_passed_writing_as_rgb(
-        self, arrangement: Tuple[Color, ...]
+        self, arrangement: Tuple[core.Color, ...]
     ) -> str:
         temporary_file = get_temporary_file_path()
-        strategy = PlainTextWriting(ColorFormat.RGB)
+        strategy = PlainTextWriting(core.ColorFormat.RGB)
 
         strategy.write(arrangement, temporary_file)
 
@@ -47,10 +46,10 @@ class TestPlainTextWriting:
         self._then_should_write_to_new_file_as_hexcode(result)
 
     def _when_colors_are_passed_writing_as_hexcode(
-        self, arrangement: Tuple[Color, ...]
+        self, arrangement: Tuple[core.Color, ...]
     ) -> str:
         temporary_file = get_temporary_file_path()
-        strategy = PlainTextWriting(ColorFormat.HEXCODE)
+        strategy = PlainTextWriting(core.ColorFormat.HEXCODE)
 
         strategy.write(arrangement, temporary_file)
 
@@ -76,9 +75,9 @@ class TestPlainTextWriting:
         result = self._when_passed_writing_as_hsl(arrangement)
         self._then_should_write_as_hsl(result)
 
-    def _when_passed_writing_as_hsl(self, arrangement: Tuple[Color, ...]) -> str:
+    def _when_passed_writing_as_hsl(self, arrangement: Tuple[core.Color, ...]) -> str:
         temporary_file = get_temporary_file_path()
-        strategy = PlainTextWriting(ColorFormat.HSL)
+        strategy = PlainTextWriting(core.ColorFormat.HSL)
 
         strategy.write(arrangement, temporary_file)
 
@@ -107,10 +106,10 @@ class TestPlainTextWriting:
         self._then_should_write_to_new_file_as_same_as_input(result)
 
     def _when_colors_are_passed_writing_as_same_as_input(
-        self, arrangement: Tuple[Color, ...]
+        self, arrangement: Tuple[core.Color, ...]
     ) -> str:
         temporary_file = get_temporary_file_path()
-        strategy = PlainTextWriting(ColorFormat.SAME_AS_INPUT)
+        strategy = PlainTextWriting(core.ColorFormat.SAME_AS_INPUT)
 
         strategy.write(arrangement, temporary_file)
 
@@ -142,27 +141,27 @@ class TestPlainTextWriting:
         assert expected_color_string3 in result
         assert unexpected_color_string3 not in result
 
-    def _given_colors(self) -> Tuple[Color, ...]:
+    def _given_colors(self) -> Tuple[core.Color, ...]:
         return (
-            Color(
-                rgb=RGB(235, 61, 52),
-                hsl=HSL(2, 0.78, 0.56),
+            core.Color(
+                rgb=core.RGB(235, 61, 52),
+                hsl=core.HSL(2, 0.78, 0.56),
                 hexcode="#eb3d34",
-                original_format=ColorFormat.HEXCODE,
+                original_format=core.ColorFormat.HEXCODE,
                 description="red",
             ),
-            Color(
-                rgb=RGB(75, 214, 47),
-                hsl=HSL(109, 0.78, 0.51),
+            core.Color(
+                rgb=core.RGB(75, 214, 47),
+                hsl=core.HSL(109, 0.78, 0.51),
                 hexcode="#4bd62f",
-                original_format=ColorFormat.RGB,
+                original_format=core.ColorFormat.RGB,
                 description="green",
             ),
-            Color(
-                rgb=RGB(212, 104, 4),
-                hsl=HSL(28, 0.98, 0.42),
+            core.Color(
+                rgb=core.RGB(212, 104, 4),
+                hsl=core.HSL(28, 0.98, 0.42),
                 hexcode="#d46804",
-                original_format=ColorFormat.HSL,
+                original_format=core.ColorFormat.HSL,
                 description="orange",
             ),
         )

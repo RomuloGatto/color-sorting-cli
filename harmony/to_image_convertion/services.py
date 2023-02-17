@@ -2,21 +2,20 @@ from typing import Iterable, List, Sized, Tuple
 
 from PIL import Image, ImageDraw
 
-from harmony.core.constants import ImageModesForPIL
-from harmony.core.interfaces import WritingStrategy
-from harmony.core.models import Color
+from harmony import core
+from harmony.core import interfaces
 
 
-class PNGWritting(WritingStrategy):
+class PNGWritting(interfaces.WritingStrategy):
     """Writing strategy that write a PNG file with the visual representation of the
     passed colors"""
 
     EXTENSION = "png"
-    IMAGE_MODE = ImageModesForPIL.RGB_MODE
+    IMAGE_MODE = core.ImageModesForPIL.RGB_MODE
     IMAGE_WIDTH = 640
     COLOR_SLICE_HEIGHT = 100
 
-    def write(self, colors: Tuple[Color, ...], final_file_path: str):
+    def write(self, colors: Tuple[core.Color, ...], final_file_path: str):
         palette = Image.new(
             self.IMAGE_MODE, (self.IMAGE_WIDTH, self._get_image_height(colors)), None
         )
@@ -24,7 +23,7 @@ class PNGWritting(WritingStrategy):
         palette.save(final_file_path)
 
     def _draw_color_palette(
-        self, colors: Iterable[Color], raw_palette: Image.Image
+        self, colors: Iterable[core.Color], raw_palette: Image.Image
     ) -> None:
         for color_counter, color in enumerate(colors):
             self._get_drawer(raw_palette).rectangle(

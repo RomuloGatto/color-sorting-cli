@@ -3,18 +3,17 @@ import os
 from pathlib import Path
 from typing import List, Sized, Tuple
 
-from harmony.core.exceptions import NoColorsFoundException
-from harmony.core.interfaces import ColorReader, FileReadingStrategy
-from harmony.core.models import Color
+from harmony import core
+from harmony.core import exceptions, interfaces
 
 
-class FileColorReader(ColorReader):
+class FileColorReader(interfaces.ColorReader):
     """Service for reading colors from file"""
 
-    def __init__(self, strategy: FileReadingStrategy) -> None:
+    def __init__(self, strategy: interfaces.FileReadingStrategy) -> None:
         self._strategy = strategy
 
-    def extract_colors(self, path: Path) -> Tuple[Color, ...]:
+    def extract_colors(self, path: Path) -> Tuple[core.Color, ...]:
         """Extracts a list of colors from a file
 
         Args:
@@ -26,17 +25,17 @@ class FileColorReader(ColorReader):
         return self._strategy.read(path)
 
 
-class DirectoryColorReader(ColorReader):
+class DirectoryColorReader(interfaces.ColorReader):
     """Service for reading colors from files in a directory"""
 
     def __init__(
-        self, strategy: FileReadingStrategy, should_be_recursively: bool
+        self, strategy: interfaces.FileReadingStrategy, should_be_recursively: bool
     ) -> None:
         self._strategy = strategy
         self._logger = logging.getLogger(self.__class__.__name__)
         self._should_be_recursively = should_be_recursively
 
-    def extract_colors(self, path: Path) -> Tuple[Color, ...]:
+    def extract_colors(self, path: Path) -> Tuple[core.Color, ...]:
         """Extracts a list of colors from the files of the passed directory
 
         Args:
@@ -45,7 +44,7 @@ class DirectoryColorReader(ColorReader):
         Returns:
             Tuple[Color, ...]: tuple of colors extracted
         """
-        colors: List[Color] = []
+        colors: List[core.Color] = []
 
         for entry in os.scandir(path):
             colors.extend(self._read_if_file(entry))
@@ -55,19 +54,19 @@ class DirectoryColorReader(ColorReader):
 
         return tuple(colors)
 
-    def _read_if_file(self, entry: os.DirEntry) -> Tuple[Color, ...]:
+    def _read_if_file(self, entry: os.DirEntry) -> Tuple[core.Color, ...]:
         if entry.is_file():
             return self._try_to_read_from_path_string(entry.path)
 
         return ()
 
-    def _read_if_directory(self, entry: os.DirEntry) -> Tuple[Color, ...]:
+    def _read_if_directory(self, entry: os.DirEntry) -> Tuple[core.Color, ...]:
         if self._should_read_recursively(entry):
             return self.extract_colors(Path(entry.path))
 
         return ()
 
-    def _try_to_read_from_path_string(self, path: str) -> Tuple[Color, ...]:
+    def _try_to_read_from_path_string(self, path: str) -> Tuple[core.Color, ...]:
         try:
             return self._strategy.read(Path(path))
 
@@ -89,7 +88,7 @@ class DirectoryColorReader(ColorReader):
 
     def _check_if_colors_were_found(self, colors_found: Sized) -> None:
         if self._no_color_was_found(colors_found):
-            raise NoColorsFoundException(
+            raise exceptions.NoColorsFoundException(
                 "Harmony could not extract any color from the path"
             )
 
@@ -99,8 +98,8 @@ class DirectoryColorReader(ColorReader):
 
 
 def extract_colors_from_path(
-    path: Path, strategy: FileReadingStrategy, recursively: bool
-) -> Tuple[Color, ...]:
+    path: Path, strategy: interfaces.FileReadingStrategy, recursively: bool
+) -> Tuple[core.Color, ...]:
     """Extract the colors from the given path using the given file reading strategy
 
     Args:

@@ -1,11 +1,8 @@
 import logging
 from typing import Any, Dict, List, Tuple
 
-from harmony.core.constants import MAXIMUM_8_BIT_UNSIGNED_INTEGER_VALUE, ByteOrder
-from harmony.core.exceptions import InvalidFileException
-from harmony.core.interfaces import WritingStrategy
-from harmony.core.models import RGB, Color
-from harmony.core.utils import BytesUtils
+from harmony import core
+from harmony.core import exceptions, interfaces
 from harmony.to_clr_convertion.constants import CLRSpecialBytes
 from harmony.to_clr_convertion.utils import (
     is_8_bit_signed_integer,
@@ -15,16 +12,16 @@ from harmony.to_clr_convertion.utils import (
 )
 
 
-class CLRWriting(WritingStrategy):
+class CLRWriting(interfaces.WritingStrategy):
     """Writting strategy that results into an ".clr" file"""
 
     EXTENSION = "clr"
-    BYTE_ORDER = ByteOrder.LITTLE
+    BYTE_ORDER = core.ByteOrder.LITTLE
 
     def __init__(self) -> None:
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    def write(self, colors: Tuple[Color, ...], final_file_path: str):
+    def write(self, colors: Tuple[core.Color, ...], final_file_path: str):
         """Write colors to a ".clr" file
 
         Args:
@@ -40,13 +37,13 @@ class CLRWriting(WritingStrategy):
         with open(final_file_path, "wb") as final_file:
             final_file.write(self._get_file_content(colors))
 
-    def _check_color_amount(self, colors: Tuple[Color, ...]) -> None:
+    def _check_color_amount(self, colors: Tuple[core.Color, ...]) -> None:
         if is_clr_color_count_invalid(len(colors)):
-            raise InvalidFileException(
+            raise exceptions.InvalidFileException(
                 f"CLR files must have at least one color, but {len(colors)} was passed"
             )
 
-    def _get_file_content(self, colors: Tuple[Color, ...]) -> bytes:
+    def _get_file_content(self, colors: Tuple[core.Color, ...]) -> bytes:
         file_content = bytearray()
 
         for item in self._get_bytes_to_add_to_the_file(colors):
@@ -55,7 +52,7 @@ class CLRWriting(WritingStrategy):
         return file_content
 
     def _get_bytes_to_add_to_the_file(
-        self, colors: Tuple[Color, ...]
+        self, colors: Tuple[core.Color, ...]
     ) -> Tuple[bytes, ...]:
         colors_list = list(colors)
         first_color_bytes = self._get_first_color_bytes(colors_list.pop(0))
@@ -68,7 +65,7 @@ class CLRWriting(WritingStrategy):
         )
 
     def _get_color_count_chunk_from_collection(
-        self, colors: Tuple[Color, ...]
+        self, colors: Tuple[core.Color, ...]
     ) -> bytes:
         return self._get_color_count_chunk(len(colors))
 
@@ -97,7 +94,7 @@ class CLRWriting(WritingStrategy):
 
         return map_value_type_bytes
 
-    def _get_first_color_bytes(self, first_color: Color) -> bytearray:
+    def _get_first_color_bytes(self, first_color: core.Color) -> bytearray:
         first_color_bytes = bytearray(CLRSpecialBytes.NEW_COLOR_MAP)
         first_color_bytes.extend(self._declare_map_value_type())
         first_color_bytes.extend(CLRSpecialBytes.COLORS_COMPONENTS_CHUNK_START)
@@ -120,7 +117,7 @@ class CLRWriting(WritingStrategy):
 
         return class_declaration_bytes
 
-    def _get_colors_bytes(self, colors: List[Color]) -> bytearray:
+    def _get_colors_bytes(self, colors: List[core.Color]) -> bytearray:
         colors_chunk_bytes = bytearray()
 
         for color in colors:
@@ -133,7 +130,7 @@ class CLRWriting(WritingStrategy):
 
         return colors_chunk_bytes
 
-    def _convert_rgb_to_bytes(self, rgb: RGB) -> bytearray:
+    def _convert_rgb_to_bytes(self, rgb: core.RGB) -> bytearray:
         rgba_bytes = bytearray(self._get_color_component_bytes(rgb.red_as_percentage))
         rgba_bytes.extend(self._get_color_component_bytes(rgb.green_as_percentage))
         rgba_bytes.extend(self._get_color_component_bytes(rgb.blue_as_percentage))
@@ -148,7 +145,7 @@ class CLRWriting(WritingStrategy):
         return rgba_bytes
 
     @staticmethod
-    def _get_rgb_converted_log_data(rgb: RGB, rgba_bytes: bytes) -> Dict[str, Any]:
+    def _get_rgb_converted_log_data(rgb: core.RGB, rgba_bytes: bytes) -> Dict[str, Any]:
         return {
             "rgb": str(rgb),
             "rgba_bytes": rgba_bytes,
@@ -172,7 +169,7 @@ class CLRWriting(WritingStrategy):
 
         component_bytes = bytearray(CLRSpecialBytes.FLOAT_BYTE)
         component_bytes.extend(
-            BytesUtils.float_to_bytes(component_as_decimal, self.BYTE_ORDER)
+            core.BytesUtils.float_to_bytes(component_as_decimal, self.BYTE_ORDER)
         )
 
         return component_bytes
@@ -191,8 +188,11 @@ class CLRWriting(WritingStrategy):
 
     @staticmethod
     def _is_color_name_bigger_than_allowed(name):
-        return len(bytes(name, encoding="utf8")) > MAXIMUM_8_BIT_UNSIGNED_INTEGER_VALUE
+        return (
+            len(bytes(name, encoding="utf8"))
+            > core.MAXIMUM_8_BIT_UNSIGNED_INTEGER_VALUE
+        )
 
     @staticmethod
     def _get_last_char_allowed_index() -> int:
-        return MAXIMUM_8_BIT_UNSIGNED_INTEGER_VALUE + 1
+        return core.MAXIMUM_8_BIT_UNSIGNED_INTEGER_VALUE + 1

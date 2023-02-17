@@ -1,8 +1,7 @@
 from typing import List, Tuple
 
+from harmony import core
 from harmony.color_sorting.service_layer.sorting_strategies import AlternatedStepSorting
-from harmony.core.constants import ColorFormat
-from harmony.core.models import HSL, RGB, Color
 
 
 class TestAlternatedStepSorting:
@@ -15,25 +14,25 @@ class TestAlternatedStepSorting:
         self._then_should_alternated_step_sort(result)
 
     def _when_sorter_set_to_alternated_step_strategy(
-        self, arrangement: List[Color]
-    ) -> Tuple[Color, ...]:
+        self, arrangement: List[core.Color]
+    ) -> Tuple[core.Color, ...]:
         return AlternatedStepSorting().sort(set(arrangement))
 
-    def _then_should_alternated_step_sort(self, result: Tuple[Color, ...]) -> None:
-        expected_first_color = Color(
-            rgb=RGB(235, 61, 52),
-            hsl=HSL(2, 0.78, 0.56),
+    def _then_should_alternated_step_sort(self, result: Tuple[core.Color, ...]) -> None:
+        expected_first_color = core.Color(
+            rgb=core.RGB(235, 61, 52),
+            hsl=core.HSL(2, 0.78, 0.56),
             hexcode="#eb3d34",
-            original_format=ColorFormat.HEXCODE,
+            original_format=core.ColorFormat.HEXCODE,
             description="red",
         )
         actual_first_color = result[0]
 
-        expected_second_color = Color(
-            rgb=RGB(212, 104, 4),
-            hsl=HSL(28, 0.98, 0.42),
+        expected_second_color = core.Color(
+            rgb=core.RGB(212, 104, 4),
+            hsl=core.HSL(28, 0.98, 0.42),
             hexcode="#d46804",
-            original_format=ColorFormat.HEXCODE,
+            original_format=core.ColorFormat.HEXCODE,
             description="orange",
         )
         actual_second_color = result[1]
@@ -41,27 +40,27 @@ class TestAlternatedStepSorting:
         assert expected_first_color == actual_first_color
         assert expected_second_color == actual_second_color
 
-    def _given_parameters(self) -> List[Color]:
+    def _given_parameters(self) -> List[core.Color]:
         return [
-            Color(
-                rgb=RGB(235, 61, 52),
-                hsl=HSL(2, 0.78, 0.56),
+            core.Color(
+                rgb=core.RGB(235, 61, 52),
+                hsl=core.HSL(2, 0.78, 0.56),
                 hexcode="#eb3d34",
-                original_format=ColorFormat.HEXCODE,
+                original_format=core.ColorFormat.HEXCODE,
                 description="red",
             ),
-            Color(
-                rgb=RGB(75, 214, 47),
-                hsl=HSL(109, 0.78, 0.51),
+            core.Color(
+                rgb=core.RGB(75, 214, 47),
+                hsl=core.HSL(109, 0.78, 0.51),
                 hexcode="#4bd62f",
-                original_format=ColorFormat.RGB,
+                original_format=core.ColorFormat.RGB,
                 description="green",
             ),
-            Color(
-                rgb=RGB(212, 104, 4),
-                hsl=HSL(28, 0.98, 0.42),
+            core.Color(
+                rgb=core.RGB(212, 104, 4),
+                hsl=core.HSL(28, 0.98, 0.42),
                 hexcode="#d46804",
-                original_format=ColorFormat.HEXCODE,
+                original_format=core.ColorFormat.HEXCODE,
                 description="orange",
             ),
         ]

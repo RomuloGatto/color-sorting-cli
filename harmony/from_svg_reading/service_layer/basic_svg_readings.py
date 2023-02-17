@@ -1,45 +1,42 @@
+import re
 from itertools import dropwhile
 
-from harmony.core.abc import AutoLabelPatternReadingStrategy
-from harmony.core.constants import ColorFormat
-from harmony.core.exceptions import InvalidColorFormatException
-from harmony.core.interfaces import StringReadingStrategy
-from harmony.core.models import HSL, RGB, Color
-from harmony.core.service_layer import RGBCSSFunctionReader, RGBToHSLConverter
-from harmony.core.utils import HexcodeUtils, RGBUtils
+from harmony import color_factories, core, core_services
+from harmony.core import exceptions, interfaces
 from harmony.from_svg_reading.constants import CSSBasicColorNames
 
 
-class HexcodeSVGReading(AutoLabelPatternReadingStrategy):
+class HexcodeSVGReading(interfaces.StringReadingStrategy):
     """Make a color given a string with a RGB value as hexcode"""
 
     STRING_PATTERN = r"#[A-Za-z0-9]{3}([A-Za-z0-9]{3})?"
-    ORIGINAL_FORMAT = ColorFormat.HEXCODE
 
-    def execute_get_rgb(self, property_value: str) -> RGB:
-        return RGBUtils.get_rgb_from_hexcode(property_value)
+    def do_read(self, property_value: str) -> core.Color:
+        return color_factories.ColorFactory().make_from_hexcode_with_auto_label(
+            property_value
+        )
 
-    def execute_get_hexcode(self, property_value: str) -> str:
-        return property_value
-
-    def execute_get_hsl(self, property_value: str) -> HSL:
-        return RGBToHSLConverter().convert(self.execute_get_rgb(property_value))
+    @classmethod
+    def do_match_pattern(cls, property_value: str) -> bool:
+        return re.match(cls.STRING_PATTERN, property_value) is not None
 
 
-class CSSColorNameReading(StringReadingStrategy):
+class CSSColorNameReading(interfaces.StringReadingStrategy):
     """Make a color given a string with a CSS basic color name"""
 
-    def read(self, property_value: str) -> Color:
+    def do_read(self, property_value: str) -> core.Color:
         for color_data in dropwhile(
             lambda color_data: color_data.name.lower() != property_value.lower(),
             CSSBasicColorNames,
         ):
-            return HexcodeSVGReading().read(color_data.value)
+            return HexcodeSVGReading().do_read(color_data.value)
 
-        raise InvalidColorFormatException(f"'{property_value}' is not a basic color")
+        raise exceptions.InvalidColorFormatException(
+            f"'{property_value}' is not a basic color"
+        )
 
     @classmethod
-    def match_pattern(cls, property_value: str) -> bool:
+    def do_match_pattern(cls, property_value: str) -> bool:
         for name in filter(
             lambda name: name.lower() == property_value.lower(),
             CSSBasicColorNames.__members__.keys(),
@@ -49,44 +46,18 @@ class CSSColorNameReading(StringReadingStrategy):
         return False
 
 
-class RGBSVGReading(AutoLabelPatternReadingStrategy):
+class RGBSVGReading(interfaces.StringReadingStrategy):
     """Make a color given a string with the CSS function `RGB()` with components as
     integers"""
 
-    STRING_PATTERN = (
-        r"(RGB|rgb)[\s]*\([\s]*(?P<red>{0-9}{1,3})[\s]*,"
-        + r"[\s]*(?P<green>{0-9}{1,3})[\s]*,[\s]*(?P<blue>{0-9}{1,3})[\s]*\)"
-    )
-    ORIGINAL_FORMAT = ColorFormat.RGB
-
-    def execute_get_hexcode(self, property_value: str) -> str:
-        return HexcodeUtils.get_hexcode_from_rgb(self.execute_get_rgb(property_value))
-
-    def execute_get_hsl(self, property_value: str) -> HSL:
-        return RGBToHSLConverter().make_hsl_from_rgb(
-            self.execute_get_rgb(property_value)
+    def do_read(self, property_value: str) -> core.Color:
+        return color_factories.ColorFactory().make_from_rgb_with_auto_label(
+            core_services.RGBCSSFunctionReader().read(property_value)
         )
 
-    def execute_get_rgb(self, property_value: str) -> RGB:
-        return RGBCSSFunctionReader().read(property_value)
-
-
-class RGBAReading(AutoLabelPatternReadingStrategy):
-    """Make a color given a string with the CSS function `RGBA()` with components as
-    integers"""
-
-    STRING_PATTERN = (
-        r"^(rgba|RGBA)[\s]*\([\s]*(?P<red>[0-9]{1,3})[\s]*,"
-        + r"[\s]*(?P<green>[0-9]{1,3})[\s]*,"
-        + r"[\s]*(?P<blue>[0-9]{1,3})[\s]*,[\s]*([01]?[.][0-9]+)[\s]*\)$"
-    )
-    ORIGINAL_FORMAT = ColorFormat.RGB
-
-    def execute_get_hexcode(self, property_value: str) -> str:
-        return HexcodeUtils.get_hexcode_from_rgb(self.execute_get_rgb(property_value))
-
-    def execute_get_hsl(self, property_value: str) -> HSL:
-        return RGBToHSLConverter().convert(self.execute_get_rgb(property_value))
-
-    def execute_get_rgb(self, property_value: str) -> RGB:
-        return RGBCSSFunctionReader().read(property_value)
+    @classmethod
+    def do_match_pattern(cls, property_value: str) -> bool:
+        return (
+            re.match(core_services.RGBCSSFunctionReader.STRING_PATTERN, property_value)
+            is not None
+        )

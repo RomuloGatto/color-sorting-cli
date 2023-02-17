@@ -1,3 +1,6 @@
+# pylint: disable=too-few-public-methods
+
+
 class CLRSpecialBytes:
     """Store the special chunks of bytes of the MacOS CLR file format"""
 

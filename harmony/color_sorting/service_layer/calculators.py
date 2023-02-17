@@ -2,7 +2,7 @@ from functools import reduce
 from math import ceil, log
 from typing import List, Tuple, Union
 
-from harmony.core.models import RGB
+from harmony import core
 
 
 class HillbertIndexCalculator:
@@ -10,7 +10,7 @@ class HillbertIndexCalculator:
 
     # pylint: disable=too-many-locals,too-many-arguments,too-many-branches
 
-    def calculate(self, rgb: RGB) -> int:
+    def calculate(self, rgb: core.RGB) -> int:
         """Calculate the Hillbert Curve index for the color passed
 
         Args:

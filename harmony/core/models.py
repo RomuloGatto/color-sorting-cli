@@ -1,7 +1,9 @@
+import dataclasses
 from abc import ABC
-from dataclasses import dataclass
 from functools import total_ordering
 from typing import Any, Dict, List, Tuple, no_type_check
+
+import pydantic
 
 from harmony.core import constants
 from harmony.typing import Number, T
@@ -84,7 +86,7 @@ class ColorFormatModel(ABC):
         raise TypeError(f"Unable to convert {type(value)} to {cls.__name__}")
 
 
-@dataclass(eq=False)
+@dataclasses.dataclass(eq=False)
 class SteppedHueValuePerceivedLuminosity(ColorFormatModel):
     """Model for the stepped hue, perceived luminosity and stepped value"""
 
@@ -96,7 +98,7 @@ class SteppedHueValuePerceivedLuminosity(ColorFormatModel):
         return hash((self.stepped_hue, self.perceived_luminosity, self.stepped_value))
 
 
-@dataclass(eq=False)
+@dataclasses.dataclass(eq=False)
 class HSV(ColorFormatModel):
     """Model for the HSV values of a color"""
 
@@ -105,14 +107,14 @@ class HSV(ColorFormatModel):
     value: float
 
 
-@dataclass(eq=False)
+@dataclasses.dataclass(eq=False)
 class PerceivedLuminosity(ColorFormatModel):
     """Model for the perceived luminosity of the color"""
 
     value: float
 
 
-@dataclass(eq=False)
+@dataclasses.dataclass(eq=False)
 class RGB(ColorFormatModel):
     """Model for the RGB format of color"""
 
@@ -139,7 +141,7 @@ class RGB(ColorFormatModel):
         return self.blue / constants.MAXIMUM_RGB_VALUE
 
 
-@dataclass(eq=False)
+@dataclasses.dataclass(eq=False)
 class HSL(ColorFormatModel):
     """Store the data of the HSL of a color"""
 
@@ -148,8 +150,7 @@ class HSL(ColorFormatModel):
     luminosity: float
 
 
-@dataclass
-class Color:
+class Color(pydantic.BaseModel):  # pylint: disable=no-member
     """Model for the color"""
 
     rgb: RGB
@@ -198,7 +199,7 @@ class Color:
         return hash((self.rgb_red, self.rgb_green, self.rgb_blue))
 
 
-@dataclass
+@dataclasses.dataclass
 class InsertQueryData:
     """Store the data needed to form a INSERT SQL query"""
 

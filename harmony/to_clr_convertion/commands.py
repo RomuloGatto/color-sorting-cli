@@ -1,15 +1,17 @@
 # pylint: disable=too-many-arguments,too-many-locals
 from pathlib import Path
 
-from harmony.core.command_utils import CommandUtils
-from harmony.core.constants import CommonArguments
+from harmony import core
+from harmony.commands import FromTxtCommandUtils
 from harmony.to_clr_convertion.services import CLRWriting
 
 
 def txt2clr(
-    file_path: Path = CommonArguments.file_path,
-    generate_names: bool = CommonArguments.generate_names,
-    suffix: str = CommonArguments.suffix,
+    file_path: Path = core.CommonArguments.file_path,
+    generate_names: bool = core.CommonArguments.generate_names,
+    suffix: str = core.CommonArguments.suffix,
 ):
     """Command to convert a text file into a ".clr" file"""
-    CommandUtils(CLRWriting(), suffix, generate_names).convert_txt_file(file_path)
+    FromTxtCommandUtils(CLRWriting(), suffix, generate_names).convert_from_txt_file(
+        file_path
+    )

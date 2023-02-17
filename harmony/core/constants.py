@@ -1,3 +1,5 @@
+# pylint: disable=too-few-public-methods,too-many-ancestors
+
 import uuid
 from enum import Enum
 from pathlib import Path
@@ -15,8 +17,7 @@ MINIMUM_8_BIT_SIGNED_INTEGER_VALUE = -MAXIMUM_8_BIT_SIGNED_INTEGER_VALUE
 class Resources:
     """Constants for the package resources"""
 
-    COLOR_NAMES_CSV = "color-names.csv"
-    SQLITE_DATABASE = "db.sqlite3"
+    COLOR_NAMES_JSON = "color-names.json"
 
 
 class DefaultParameters:
@@ -39,12 +40,6 @@ class ByteOrder(str, Enum):
 
     LITTLE: str = "little"
     BIG: str = "big"
-
-
-class TableNames:
-    """Constants for the database tables names"""
-
-    COLOR_NAME = "namegeneration_colorname"
 
 
 class QueryConstants:
@@ -124,3 +119,15 @@ class CommonArguments:
         help="Whether it should read the files recursively, in case a directory was "
         + "passed",
     )
+
+
+class SortingStrategyName(str, Enum):
+    """Constants for the sorting strategies"""
+
+    RGB: str = "rgb"
+    HSV: str = "hsv"
+    HSL: str = "hsl"
+    LUMINOSITY: str = "luminosity"
+    STEP: str = "step"
+    ALTERNATED_STEP: str = "stepalt"
+    HILLBERT: str = "hillbert"

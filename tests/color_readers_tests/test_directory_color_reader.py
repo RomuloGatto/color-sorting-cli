@@ -1,13 +1,12 @@
-from pathlib import Path
+import pathlib
 from typing import Callable, Tuple
 
 import pytest
 
-from harmony.core.exceptions import NoColorsFoundException
-from harmony.core.models import Color
-from harmony.core.service_layer.color_readers import DirectoryColorReader
-from tests.color_readers_tests.test_color_reader_factory import ColorReadingArrangement
+from harmony import core, core_services
+from harmony.core import exceptions
 from tests.helpers import (
+    ColorReadingArrangement,
     FakeFileReadingStrategy,
     get_directory_to_read,
     temporary_directory_context,
@@ -25,7 +24,7 @@ class TestDirectoryColorReader:
 
         self._then_should_get_colors(result)
 
-    def _then_should_get_colors(self, result: Tuple[Color, ...]) -> None:
+    def _then_should_get_colors(self, result: Tuple[core.Color, ...]) -> None:
         assert len(result) == 2
 
         for color in result:
@@ -42,12 +41,12 @@ class TestDirectoryColorReader:
             self._then_should_raise_no_color_found(result)
 
     def _given_directory_without_colors(
-        self, directory: Path
+        self, directory: pathlib.Path
     ) -> ColorReadingArrangement:
         return ColorReadingArrangement(directory, FakeFileReadingStrategy())
 
     def _then_should_raise_no_color_found(self, result: Callable[[], None]) -> None:
-        with pytest.raises(NoColorsFoundException):
+        with pytest.raises(exceptions.NoColorsFoundException):
             result()
 
     def test_reading_directory_recursively(self) -> None:
@@ -57,7 +56,7 @@ class TestDirectoryColorReader:
             result = self._when_directory_readed(arrangement, True)
         self._then_should_read_recursively(result)
 
-    def _then_should_read_recursively(self, result: Tuple[Color, ...]) -> None:
+    def _then_should_read_recursively(self, result: Tuple[core.Color, ...]) -> None:
         assert len(result) == 3
 
         for color in result:
@@ -65,7 +64,7 @@ class TestDirectoryColorReader:
 
     def _when_directory_readed(
         self, arrangement: ColorReadingArrangement, should_be_recursively: bool = False
-    ) -> Tuple[Color, ...]:
-        return DirectoryColorReader(
+    ) -> Tuple[core.Color, ...]:
+        return core_services.DirectoryColorReader(
             arrangement.strategy, should_be_recursively
         ).extract_colors(arrangement.path)

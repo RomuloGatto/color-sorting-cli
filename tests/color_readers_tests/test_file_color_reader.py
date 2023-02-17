@@ -2,30 +2,28 @@ import os
 from pathlib import Path
 from typing import List, Tuple
 
-from harmony.core.constants import ColorFormat
-from harmony.core.interfaces import FileReadingStrategy
-from harmony.core.models import HSL, RGB, Color
-from harmony.core.service_layer.color_readers import FileColorReader
+from harmony import core, core_services
+from harmony.core import interfaces
 from tests.helpers import get_temporary_file_path
 
 
-class FakeFileReading(FileReadingStrategy):
-    def read(self, file_path: Path) -> Tuple[Color, ...]:
+class FakeFileReading(interfaces.FileReadingStrategy):
+    def read(self, file_path: Path) -> Tuple[core.Color, ...]:
         del file_path
 
         return (
-            Color(
-                rgb=RGB(red=22, green=92, blue=196),
-                hsl=HSL(215, 0.89, 0.43),
+            core.Color(
+                rgb=core.RGB(red=22, green=92, blue=196),
+                hsl=core.HSL(215, 0.89, 0.43),
                 hexcode="#165cc4",
-                original_format=ColorFormat.HEXCODE,
+                original_format=core.ColorFormat.HEXCODE,
                 description="Blue",
             ),
-            Color(
-                rgb=RGB(red=196, green=22, blue=190),
-                hsl=HSL(302, 0.89, 0.43),
+            core.Color(
+                rgb=core.RGB(red=196, green=22, blue=190),
+                hsl=core.HSL(302, 0.89, 0.43),
                 hexcode="#c416be",
-                original_format=ColorFormat.RGB,
+                original_format=core.ColorFormat.RGB,
                 description="Magenta",
             ),
         )
@@ -53,12 +51,12 @@ class TestFileColorReader:
 
         return temporary_file_path
 
-    def _when_file_is_passed(self, file_path: str) -> Tuple[Color, ...]:
-        extractor = FileColorReader(FakeFileReading())
+    def _when_file_is_passed(self, file_path: str) -> Tuple[core.Color, ...]:
+        extractor = core_services.FileColorReader(FakeFileReading())
         return extractor.extract_colors(Path(file_path))
 
-    def _then_should_extract_colors_from_text(self, colors: List[Color]) -> None:
-        expected_rgb = RGB(red=22, green=92, blue=196)
+    def _then_should_extract_colors_from_text(self, colors: List[core.Color]) -> None:
+        expected_rgb = core.RGB(red=22, green=92, blue=196)
         expected_hexcode = "#c416be"
         first_expected_description = "Blue"
         second_expected_description = "Magenta"

@@ -1,5 +1,4 @@
-from harmony.core.models import RGB, Color
-from harmony.core.service_layer.plain_text_readings import HexcodeTextReading
+from harmony import core, core_services
 
 
 class TestHexcodeTextReading:
@@ -14,9 +13,9 @@ class TestHexcodeTextReading:
     def _given_hexcode_without_description(self) -> str:
         return "#6690ce"
 
-    def _then_should_get_color_without_description(self, result: Color) -> None:
+    def _then_should_get_color_without_description(self, result: core.Color) -> None:
         assert result.hexcode == "#6690ce"
-        assert result.rgb == RGB(red=102, green=144, blue=206)
+        assert result.rgb == core.RGB(red=102, green=144, blue=206)
         assert result.description == ""
 
     def test_reading_hexcode_with_description(self) -> None:
@@ -28,10 +27,10 @@ class TestHexcodeTextReading:
     def _given_hexcode_with_description(self) -> str:
         return "#6690ce Danube"
 
-    def _then_should_get_color_with_description(self, result: Color) -> None:
+    def _then_should_get_color_with_description(self, result: core.Color) -> None:
         assert result.hexcode == "#6690ce"
-        assert result.rgb == RGB(red=102, green=144, blue=206)
+        assert result.rgb == core.RGB(red=102, green=144, blue=206)
         assert result.description == "Danube"
 
-    def _when_read(self, arrangement: str) -> Color:
-        return HexcodeTextReading().read(arrangement)
+    def _when_read(self, arrangement: str) -> core.Color:
+        return core_services.HexcodeTextReading().do_read(arrangement)

@@ -1,15 +1,14 @@
+import contextlib
+import copy
+import dataclasses
 import os
+import pathlib
 import shutil
 import tempfile
-from contextlib import contextmanager
-from copy import deepcopy
-from dataclasses import dataclass
-from pathlib import Path
 from typing import Iterator, List, Tuple
 
-from harmony.core.constants import ColorFormat
-from harmony.core.interfaces import FileReadingStrategy
-from harmony.core.models import HSL, RGB, Color
+from harmony import core
+from harmony.core import interfaces
 from harmony.typing import Number
 from tests import constants
 
@@ -29,25 +28,25 @@ def get_temporary_file_path(**kwargs: object) -> str:
     ]
 
 
-@contextmanager
-def temporary_file_context() -> Iterator[Path]:
+@contextlib.contextmanager
+def temporary_file_context() -> Iterator[pathlib.Path]:
     """Provide the path for a temporary file and remove it after used"""
 
     temporary_file = get_temporary_file_path()
 
     try:
-        yield Path(temporary_file)
+        yield pathlib.Path(temporary_file)
 
     finally:
         os.remove(temporary_file)
 
 
-@contextmanager
-def temporary_directory_context(**kwargs) -> Iterator[Path]:
+@contextlib.contextmanager
+def temporary_directory_context(**kwargs) -> Iterator[pathlib.Path]:
     directory = tempfile.mkdtemp(**kwargs)
 
     try:
-        yield Path(directory)
+        yield pathlib.Path(directory)
 
     finally:
         shutil.rmtree(directory)
@@ -101,46 +100,46 @@ class TestResourceUtils:
         return os.path.abspath(os.path.dirname(__file__))
 
 
-class FakeFileReadingStrategy(FileReadingStrategy):
-    colors_queue: List[Color] = [
-        Color(
-            rgb=RGB(212, 104, 4),
-            hsl=HSL(28, 0.98, 0.42),
+class FakeFileReadingStrategy(interfaces.FileReadingStrategy):
+    colors_queue: List[core.Color] = [
+        core.Color(
+            rgb=core.RGB(212, 104, 4),
+            hsl=core.HSL(28, 0.98, 0.42),
             hexcode="#d46804",
-            original_format=ColorFormat.HEXCODE,
+            original_format=core.ColorFormat.HEXCODE,
             description="Orange",
         ),
-        Color(
-            rgb=RGB(red=22, green=92, blue=196),
-            hsl=HSL(215, 0.89, 0.43),
+        core.Color(
+            rgb=core.RGB(red=22, green=92, blue=196),
+            hsl=core.HSL(215, 0.89, 0.43),
             hexcode="#165cc4",
-            original_format=ColorFormat.HEXCODE,
+            original_format=core.ColorFormat.HEXCODE,
             description="Blue",
         ),
-        Color(
-            rgb=RGB(red=196, green=22, blue=190),
-            hsl=HSL(302, 0.89, 0.43),
+        core.Color(
+            rgb=core.RGB(red=196, green=22, blue=190),
+            hsl=core.HSL(302, 0.89, 0.43),
             hexcode="#c416be",
-            original_format=ColorFormat.RGB,
+            original_format=core.ColorFormat.RGB,
             description="Magenta",
         ),
     ]
 
     def __init__(self) -> None:
-        self.colors_queue = deepcopy(self.__class__.colors_queue)
+        self.colors_queue = copy.deepcopy(self.__class__.colors_queue)
 
-    def read(self, file_path: Path) -> Tuple[Color, ...]:
+    def read(self, file_path: pathlib.Path) -> Tuple[core.Color, ...]:
         del file_path
         return (self.colors_queue.pop(),)
 
 
-@dataclass
+@dataclasses.dataclass
 class ColorReadingArrangement:
-    path: Path
-    strategy: FileReadingStrategy
+    path: pathlib.Path
+    strategy: interfaces.FileReadingStrategy
 
 
-def get_directory_to_read(directory: Path) -> ColorReadingArrangement:
+def get_directory_to_read(directory: pathlib.Path) -> ColorReadingArrangement:
     directory.joinpath("fake-file1.txt").write_text("#c416be Magenta")
     directory.joinpath("fake-file2.txt").write_text("#165cc4 Blue")
     directory.joinpath("fake-folder").mkdir()

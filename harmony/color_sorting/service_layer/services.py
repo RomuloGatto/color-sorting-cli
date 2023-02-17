@@ -1,19 +1,19 @@
 from typing import Dict, List, Set, Tuple, Type
 
-from harmony.color_sorting.constants import Directions, SortingStrategyName
+from harmony import core
+from harmony.color_sorting.constants import Directions
 from harmony.color_sorting.service_layer import sorting_strategies
-from harmony.core.models import Color
 
 STRATEGY_MAPPING: Dict[
-    SortingStrategyName, Type[sorting_strategies.SortingStrategy]
+    core.SortingStrategyName, Type[sorting_strategies.SortingStrategy]
 ] = {
-    SortingStrategyName.RGB: sorting_strategies.RGBSorting,
-    SortingStrategyName.HSV: sorting_strategies.HSVSorting,
-    SortingStrategyName.HSL: sorting_strategies.HSLSorting,
-    SortingStrategyName.STEP: sorting_strategies.StepSorting,
-    SortingStrategyName.ALTERNATED_STEP: sorting_strategies.AlternatedStepSorting,
-    SortingStrategyName.LUMINOSITY: sorting_strategies.LuminositySorting,
-    SortingStrategyName.HILLBERT: sorting_strategies.HillbertSorting,
+    core.SortingStrategyName.RGB: sorting_strategies.RGBSorting,
+    core.SortingStrategyName.HSV: sorting_strategies.HSVSorting,
+    core.SortingStrategyName.HSL: sorting_strategies.HSLSorting,
+    core.SortingStrategyName.STEP: sorting_strategies.StepSorting,
+    core.SortingStrategyName.ALTERNATED_STEP: sorting_strategies.AlternatedStepSorting,
+    core.SortingStrategyName.LUMINOSITY: sorting_strategies.LuminositySorting,
+    core.SortingStrategyName.HILLBERT: sorting_strategies.HillbertSorting,
 }
 
 
@@ -24,8 +24,8 @@ class ColorSorter:
         self.strategy = strategy
 
     def sort(
-        self, colors_to_sort: Set[Color], direction: Directions
-    ) -> Tuple[Color, ...]:
+        self, colors_to_sort: Set[core.Color], direction: Directions
+    ) -> Tuple[core.Color, ...]:
         """Sort a list of colors
 
         Args:
@@ -39,8 +39,10 @@ class ColorSorter:
             Directions.BACKWARD: lambda: self._sort_backwards(colors_to_sort),
         }[direction]()
 
-    def _sort_backwards(self, colors_to_sort: Set[Color]) -> Tuple[Color, ...]:
-        colors_sorted_backwards: List[Color] = []
+    def _sort_backwards(
+        self, colors_to_sort: Set[core.Color]
+    ) -> Tuple[core.Color, ...]:
+        colors_sorted_backwards: List[core.Color] = []
 
         for color in reversed(self.strategy.sort(colors_to_sort)):
             colors_sorted_backwards.append(color)
@@ -49,7 +51,7 @@ class ColorSorter:
 
 
 def make_sorting_strategy(
-    strategy_name: SortingStrategyName,
+    strategy_name: core.SortingStrategyName,
 ) -> sorting_strategies.SortingStrategy:
     """Given a strategy name, make the correspondent sorting strategy
 

@@ -2,18 +2,19 @@
 
 disable=broad-except,
         missing-module-docstring,
-        too-few-public-methods,
 
 [BASIC]
 no-docstring-rgx=(^_|^close$)
 
 [DESIGN]
+exclude-too-few-public-methods=Enum
 max-args=4
 max-bool-expr=1
 max-branches=1
 max-locals=5
-max-parents=3
+max-parents=2
 max-returns=2
+min-public-methods=1
 
 [FORMAT]
 max-line-length=88

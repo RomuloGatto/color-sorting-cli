@@ -4,9 +4,8 @@ from typing import Callable, List, Tuple
 
 import pytest
 
-from harmony.core.exceptions import InvalidColorException
-from harmony.core.models import RGB, Color
-from harmony.core.service_layer.file_readings import PlainTextFileReading
+from harmony import core, core_services
+from harmony.core import exceptions
 from tests.helpers import get_temporary_file_path
 
 
@@ -32,8 +31,8 @@ class TestPlainTextFileReading:
 
         return temporary_file_path
 
-    def _then_should_extract_colors_from_text(self, colors: List[Color]) -> None:
-        expected_rgb = RGB(red=22, green=92, blue=196)
+    def _then_should_extract_colors_from_text(self, colors: List[core.Color]) -> None:
+        expected_rgb = core.RGB(red=22, green=92, blue=196)
         expected_hexcode = "#c416be"
         first_expected_description = "Blue"
         second_expected_description = "Magenta"
@@ -69,7 +68,7 @@ class TestPlainTextFileReading:
         return temporary_file_path
 
     def _then_should_raise_invalid_color(self, result: Callable[[], None]):
-        with pytest.raises(InvalidColorException):
+        with pytest.raises(exceptions.InvalidColorException):
             result()
 
     def test_extract_from_file_without_color_names(self) -> None:
@@ -86,13 +85,13 @@ class TestPlainTextFileReading:
 
         return temporary_file_path
 
-    def _then_should_give_names_to_colors(self, result: Tuple[Color, ...]) -> None:
+    def _then_should_give_names_to_colors(self, result: Tuple[core.Color, ...]) -> None:
         expected_color_names = ["Red", "New Midnight Blue", "Razzmatazz"]
         actual_color_names = [color.description for color in result]
 
         for expected_name in expected_color_names:
             assert expected_name in actual_color_names
 
-    def _when_file_is_passed(self, file_path: str) -> Tuple[Color, ...]:
-        strategy = PlainTextFileReading(True)
+    def _when_file_is_passed(self, file_path: str) -> Tuple[core.Color, ...]:
+        strategy = core_services.PlainTextFileReading(True)
         return strategy.read(Path(file_path))

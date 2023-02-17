@@ -1,7 +1,11 @@
+# pylint: disable=too-few-public-methods,too-many-ancestors
+
 from enum import Enum
 from pathlib import Path
 
 import typer
+
+from harmony import core
 
 
 class Directions(str, Enum):
@@ -9,18 +13,6 @@ class Directions(str, Enum):
 
     FORWARD: str = "forward"
     BACKWARD: str = "backward"
-
-
-class SortingStrategyName(str, Enum):
-    """Constants for the sorting strategies"""
-
-    RGB: str = "rgb"
-    HSV: str = "hsv"
-    HSL: str = "hsl"
-    LUMINOSITY: str = "luminosity"
-    STEP: str = "step"
-    ALTERNATED_STEP: str = "stepalt"
-    HILLBERT: str = "hillbert"
 
 
 class SortCommandArguments:
@@ -34,8 +26,8 @@ class SortCommandArguments:
         readable=True,
         resolve_path=True,
     )
-    sorting_algorithm: SortingStrategyName = typer.Option(
-        SortingStrategyName.HILLBERT.value,
+    sorting_algorithm: core.SortingStrategyName = typer.Option(
+        core.SortingStrategyName.HILLBERT.value,
         "--sorting-algorithm",
         "-a",
         case_sensitive=False,

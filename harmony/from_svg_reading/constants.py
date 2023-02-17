@@ -1,3 +1,4 @@
+# pylint: disable=too-few-public-methods,too-many-ancestors
 from enum import Enum
 
 

@@ -4,8 +4,7 @@ import tempfile
 from pathlib import Path
 from typing import List, Tuple
 
-from harmony.core.constants import ColorFormat
-from harmony.core.models import HSL, RGB, Color
+from harmony import core
 from harmony.from_image_reading.services import ImageFileReading
 from tests.helpers import TestResourceUtils
 
@@ -40,43 +39,43 @@ class TestImageReading:
     def _get_test_image_path() -> Path:
         return Path(TestResourceUtils.get_resource("image-for-reading.jpg"))
 
-    def _when_image_is_passed(self, arrangement: Path) -> Tuple[Color, ...]:
+    def _when_image_is_passed(self, arrangement: Path) -> Tuple[core.Color, ...]:
         return ImageFileReading().read(arrangement)
 
-    def _then_should_extract_colors_from_image(self, result: List[Color]) -> None:
+    def _then_should_extract_colors_from_image(self, result: List[core.Color]) -> None:
         for color in self._get_colors_expected_in_image():
             assert color in result
 
     @staticmethod
-    def _get_colors_expected_in_image() -> List[Color]:
+    def _get_colors_expected_in_image() -> List[core.Color]:
         return [
-            Color(
-                rgb=RGB(red=4, green=86, blue=168),
-                hsl=HSL(
+            core.Color(
+                rgb=core.RGB(red=4, green=86, blue=168),
+                hsl=core.HSL(
                     hue=210,
                     saturation=0.97,
                     luminosity=0.33,
                 ),
                 hexcode="0456a8",
-                original_format=ColorFormat.RGB,
+                original_format=core.ColorFormat.RGB,
                 description="Cobalt",
             ),
-            Color(
-                rgb=RGB(red=24, green=103, blue=160),
-                hsl=HSL(hue=205, saturation=0.85, luminosity=0.36),
+            core.Color(
+                rgb=core.RGB(red=24, green=103, blue=160),
+                hsl=core.HSL(hue=205, saturation=0.85, luminosity=0.36),
                 hexcode="1867a0",
-                original_format=ColorFormat.RGB,
+                original_format=core.ColorFormat.RGB,
                 description="Denim",
             ),
-            Color(
-                rgb=RGB(red=43, green=99, blue=150),
-                hsl=HSL(
+            core.Color(
+                rgb=core.RGB(red=43, green=99, blue=150),
+                hsl=core.HSL(
                     hue=208,
                     saturation=0.71,
                     luminosity=0.37,
                 ),
                 hexcode="2b6396",
-                original_format=ColorFormat.RGB,
+                original_format=core.ColorFormat.RGB,
                 description="Endeavour",
             ),
         ]

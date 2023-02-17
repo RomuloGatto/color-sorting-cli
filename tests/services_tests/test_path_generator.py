@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from harmony.color_sorting.constants import SortingStrategyName
-from harmony.core.service_layer.services import PathGenerator
+from harmony import core, core_services
 
 
 class PathGenerationArrangement:
@@ -13,7 +12,7 @@ class PathGenerationArrangement:
 class SortedFileArrangement:
     suffix: str
     source_file: Path
-    sorting_strategy: SortingStrategyName
+    sorting_strategy: core.SortingStrategyName
 
 
 @dataclass
@@ -34,7 +33,7 @@ class TestPathGenerator:
 
     def _given_file_path_with_extension(self) -> SortedFileArrangement:
         return SortedFileArrangement(
-            "_test", self._get_path_with_extension(), SortingStrategyName.HILLBERT
+            "_test", self._get_path_with_extension(), core.SortingStrategyName.HILLBERT
         )
 
     def _then_should_generate_path_with_extension(self, result: str) -> None:
@@ -48,7 +47,9 @@ class TestPathGenerator:
 
     def _given_file_path_without_extension(self) -> SortedFileArrangement:
         return SortedFileArrangement(
-            "_test", self._get_path_without_extension(), SortingStrategyName.HILLBERT
+            "_test",
+            self._get_path_without_extension(),
+            core.SortingStrategyName.HILLBERT,
         )
 
     def _then_should_generate_path_without_extension(self, result: str) -> None:
@@ -57,7 +58,7 @@ class TestPathGenerator:
     def _when_passed_sorting_parameters(
         self, arrangement: SortedFileArrangement
     ) -> str:
-        return PathGenerator(arrangement.suffix).get_sorted_file_path(
+        return core_services.PathGenerator(arrangement.suffix).get_sorted_file_path(
             arrangement.source_file, arrangement.sorting_strategy
         )
 
@@ -86,7 +87,7 @@ class TestPathGenerator:
     def _when_generating_path_for_extension(
         self, arrangement: ChangeExtensionArrangement
     ) -> str:
-        return PathGenerator(arrangement.suffix).get_path_with_extension(
+        return core_services.PathGenerator(arrangement.suffix).get_path_with_extension(
             arrangement.source_file, arrangement.extension
         )
 

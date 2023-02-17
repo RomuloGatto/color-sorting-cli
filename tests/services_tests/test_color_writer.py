@@ -1,19 +1,17 @@
 from typing import TextIO, Tuple
 
-from harmony.core.constants import ColorFormat
-from harmony.core.interfaces import WritingStrategy
-from harmony.core.models import HSL, RGB, Color
-from harmony.core.service_layer.services import ColorWriter
+from harmony import core, core_services
+from harmony.core import interfaces
 from tests.helpers import temporary_file_context
 
 
-class FakeWriting(WritingStrategy):
-    def write(self, colors: Tuple[Color, ...], final_file_path: str):
+class FakeWriting(interfaces.WritingStrategy):
+    def write(self, colors: Tuple[core.Color, ...], final_file_path: str):
         with open(final_file_path, "w") as file:
             self._for_each_color_write_description(file, colors)
 
     def _for_each_color_write_description(
-        self, file: TextIO, colors: Tuple[Color, ...]
+        self, file: TextIO, colors: Tuple[core.Color, ...]
     ):
         for index, color in enumerate(colors):
             file.write(color.description)
@@ -31,9 +29,9 @@ class TestColorsWriter:
         result = self._when_written(arrangement)
         self._then_should_write_to_passed_path(result)
 
-    def _when_written(self, arrangement: Tuple[Color, ...]) -> str:
+    def _when_written(self, arrangement: Tuple[core.Color, ...]) -> str:
         with temporary_file_context() as file_path:
-            ColorWriter(FakeWriting()).write(arrangement, str(file_path))
+            core_services.ColorWriter(FakeWriting()).write(arrangement, str(file_path))
 
             return file_path.read_text()
 
@@ -44,27 +42,27 @@ class TestColorsWriter:
     def _get_expected_content() -> str:
         return "red\ngreen\norange"
 
-    def _given_colors(self) -> Tuple[Color, ...]:
+    def _given_colors(self) -> Tuple[core.Color, ...]:
         return (
-            Color(
-                rgb=RGB(235, 61, 52),
-                hsl=HSL(2, 0.78, 0.56),
+            core.Color(
+                rgb=core.RGB(235, 61, 52),
+                hsl=core.HSL(2, 0.78, 0.56),
                 hexcode="#eb3d34",
-                original_format=ColorFormat.HEXCODE,
+                original_format=core.ColorFormat.HEXCODE,
                 description="red",
             ),
-            Color(
-                rgb=RGB(75, 214, 47),
-                hsl=HSL(109, 0.78, 0.51),
+            core.Color(
+                rgb=core.RGB(75, 214, 47),
+                hsl=core.HSL(109, 0.78, 0.51),
                 hexcode="#4bd62f",
-                original_format=ColorFormat.RGB,
+                original_format=core.ColorFormat.RGB,
                 description="green",
             ),
-            Color(
-                rgb=RGB(212, 104, 4),
-                hsl=HSL(28, 0.98, 0.42),
-                hexcode=RGB(212, 104, 4),
-                original_format=ColorFormat.HEXCODE,
+            core.Color(
+                rgb=core.RGB(212, 104, 4),
+                hsl=core.HSL(28, 0.98, 0.42),
+                hexcode="#d46804",
+                original_format=core.ColorFormat.HEXCODE,
                 description="orange",
             ),
         )

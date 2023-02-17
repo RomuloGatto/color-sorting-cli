@@ -2,14 +2,8 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Tuple
 
-from harmony.color_sorting.constants import SortingStrategyName
-from harmony.core.interfaces import WritingStrategy
-from harmony.core.models import Color
-from harmony.core.utils import (
-    does_file_name_have_extension,
-    extract_extension_from_file_path,
-    get_extension_from_file_path,
-)
+from harmony import core
+from harmony.core import interfaces
 
 
 class PathGenerator:
@@ -21,7 +15,7 @@ class PathGenerator:
     def get_sorted_file_path(
         self,
         source_file: Path,
-        sorting_strategy: SortingStrategyName,
+        sorting_strategy: core.SortingStrategyName,
     ) -> str:
         """Return the path to the file with the processed data
 
@@ -31,7 +25,7 @@ class PathGenerator:
         Returns:
             str: path to the processed data file
         """
-        if does_file_name_have_extension(str(source_file)):
+        if core.does_file_name_have_extension(str(source_file)):
             self._log_sorted_path_generated_with_extension(
                 source_file, sorting_strategy
             )
@@ -51,7 +45,7 @@ class PathGenerator:
         Returns:
             str: path to the converted file
         """
-        if does_file_name_have_extension(str(file_path)):
+        if core.does_file_name_have_extension(str(file_path)):
             self._log_changed_extension(file_path, extension)
             return self._get_path_with_changed_extension(file_path, extension)
 
@@ -59,7 +53,7 @@ class PathGenerator:
         return self._get_path_with_added_extension(file_path, extension)
 
     def _log_sorted_path_generated_with_extension(
-        self, source_file: Path, sorting_strategy: SortingStrategyName
+        self, source_file: Path, sorting_strategy: core.SortingStrategyName
     ) -> None:
         return self._logger.info(
             "sorted file path generated is %(final_path)s",
@@ -69,7 +63,7 @@ class PathGenerator:
         )
 
     def _get_sorted_path_with_extension_log_data(
-        self, source_file: Path, sorting_strategy: SortingStrategyName
+        self, source_file: Path, sorting_strategy: core.SortingStrategyName
     ) -> Dict[str, Any]:
         return {
             "final_path": self._get_path_with_suffix_strategy_and_extension(
@@ -78,7 +72,7 @@ class PathGenerator:
         }
 
     def _log_sorted_path_generated_without_extension(
-        self, source_file: Path, sorting_strategy: SortingStrategyName
+        self, source_file: Path, sorting_strategy: core.SortingStrategyName
     ) -> None:
         return self._logger.info(
             "sorted file path generated is %(final_path)s",
@@ -88,7 +82,7 @@ class PathGenerator:
         )
 
     def _get_sorted_path_without_extension_log_data(
-        self, source_file: Path, sorting_strategy: SortingStrategyName
+        self, source_file: Path, sorting_strategy: core.SortingStrategyName
     ) -> Dict[str, Any]:
         return {
             "final_path": self._get_path_with_strategy_and_suffix(
@@ -97,16 +91,16 @@ class PathGenerator:
         }
 
     def _get_path_with_suffix_strategy_and_extension(
-        self, source_file: Path, sorting_strategy: SortingStrategyName
+        self, source_file: Path, sorting_strategy: core.SortingStrategyName
     ) -> str:
         return (
-            f"{extract_extension_from_file_path(str(source_file))}"
+            f"{core.extract_extension_from_file_path(str(source_file))}"
             + f"_{sorting_strategy}{self._suffix}"
-            + f"{get_extension_from_file_path(str(source_file))}"
+            + f"{core.get_extension_from_file_path(str(source_file))}"
         )
 
     def _get_path_with_strategy_and_suffix(
-        self, source_file: Path, sorting_strategy: SortingStrategyName
+        self, source_file: Path, sorting_strategy: core.SortingStrategyName
     ) -> str:
         return f"{str(source_file)}_{sorting_strategy}{self._suffix}"
 
@@ -136,7 +130,7 @@ class PathGenerator:
 
     def _get_path_with_changed_extension(self, file_path: Path, extension: str) -> str:
         return (
-            f"{extract_extension_from_file_path(str(file_path))}{self._suffix}."
+            f"{core.extract_extension_from_file_path(str(file_path))}{self._suffix}."
             + extension
         )
 
@@ -151,10 +145,10 @@ class PathGenerator:
 class ColorWriter:
     """Service for writing colors to file"""
 
-    def __init__(self, strategy: WritingStrategy):
+    def __init__(self, strategy: interfaces.WritingStrategy):
         self._strategy = strategy
 
-    def write(self, colors: Tuple[Color, ...], final_file_path: str):
+    def write(self, colors: Tuple[core.Color, ...], final_file_path: str):
         """Write colors to passed file
 
         Args:

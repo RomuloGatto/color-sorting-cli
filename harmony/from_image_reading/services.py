@@ -6,15 +6,11 @@ from typing import List, Tuple
 
 from PIL import Image
 
-from harmony.core.constants import ColorFormat
-from harmony.core.interfaces import FileReadingStrategy
-from harmony.core.models import HSL, RGB, Color
-from harmony.core.service_layer import RGBToHSLConverter
-from harmony.core.utils import HexcodeUtils, extract_unique_values_from_iterable
-from harmony.data_access.store import ColorNamesStorage
+from harmony import convertions, core, data_access
+from harmony.core import interfaces
 
 
-class ImageFileReading(FileReadingStrategy):
+class ImageFileReading(interfaces.FileReadingStrategy):
     """Extract a set of colors from an image file"""
 
     MAXIMUM_PIXELS = 256
@@ -22,17 +18,17 @@ class ImageFileReading(FileReadingStrategy):
     def __init__(self) -> None:
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    def read(self, file_path: Path) -> Tuple[Color, ...]:
+    def read(self, file_path: Path) -> Tuple[core.Color, ...]:
         image = self._get_image_from_file(file_path)
 
         with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
-            colors: List[Color] = pool.map(
+            colors: List[core.Color] = pool.map(
                 self._get_color_from_pixel_tuple,
                 self._get_list_of_arguments(image),
                 20,
             )
 
-        return tuple(extract_unique_values_from_iterable(colors))
+        return tuple(core.extract_unique_values_from_iterable(colors))
 
     def _get_list_of_arguments(
         self, image: Image.Image
@@ -59,19 +55,21 @@ class ImageFileReading(FileReadingStrategy):
 
     def _get_color_from_pixel(
         self, image: Image.Image, x_coordinate: int, y_coordinate: int
-    ) -> Color:
-        return Color(
-            self._get_rgb_from_pixel(image, x_coordinate, y_coordinate),
-            self._get_hsl_from_pixel(image, x_coordinate, y_coordinate),
-            self._get_hexcode_from_pixel(image, x_coordinate, y_coordinate),
-            ColorFormat.RGB,
-            self._generate_color_name_from_pixel(image, x_coordinate, y_coordinate),
+    ) -> core.Color:
+        return core.Color(
+            rgb=self._get_rgb_from_pixel(image, x_coordinate, y_coordinate),
+            hsl=self._get_hsl_from_pixel(image, x_coordinate, y_coordinate),
+            hexcode=self._get_hexcode_from_pixel(image, x_coordinate, y_coordinate),
+            original_format=core.ColorFormat.RGB,
+            description=self._generate_color_name_from_pixel(
+                image, x_coordinate, y_coordinate
+            ),
         )
 
     def _get_hexcode_from_pixel(
         self, image: Image.Image, x_coordinate: int, y_coordinate: int
     ) -> str:
-        return HexcodeUtils.get_hexcode_from_rgb(
+        return core.HexcodeUtils.get_hexcode_from_rgb(
             self._get_rgb_from_pixel(image, x_coordinate, y_coordinate)
         )
 
@@ -84,15 +82,15 @@ class ImageFileReading(FileReadingStrategy):
 
     def _get_hsl_from_pixel(
         self, image: Image.Image, x_coordinate: int, y_coordinate: int
-    ) -> HSL:
-        return RGBToHSLConverter().convert(
+    ) -> core.HSL:
+        return convertions.RGBToHSLConverter().convert(
             self._get_rgb_from_pixel(image, x_coordinate, y_coordinate)
         )
 
     def _get_rgb_from_pixel(
         self, image: Image.Image, x_coordinate: int, y_coordinate: int
-    ) -> RGB:
-        return RGB(
+    ) -> core.RGB:
+        return core.RGB(
             self._get_red_from_pixel(image, x_coordinate, y_coordinate),
             self._get_green_from_pixel(image, x_coordinate, y_coordinate),
             self._get_blue_from_pixel(image, x_coordinate, y_coordinate),
@@ -113,11 +111,10 @@ class ImageFileReading(FileReadingStrategy):
     ) -> int:
         return image.getpixel((x_coordinate, y_coordinate))[2]
 
-    def _generate_color_name(self, rgb_values: RGB):
-        with ColorNamesStorage() as storage:
-            return storage.get_color_name_by_hsl(
-                RGBToHSLConverter().convert(rgb_values)
-            )
+    def _generate_color_name(self, rgb_values: core.RGB):
+        return data_access.ColorNamesStorage().get_color_name_by_hsl(
+            convertions.RGBToHSLConverter().convert(rgb_values)
+        )
 
     def _get_image_from_file(self, file_path: Path) -> Image.Image:
         Image.MAX_IMAGE_PIXELS = None

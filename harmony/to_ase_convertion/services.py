@@ -1,24 +1,22 @@
 import logging
 from typing import Any, Dict, Tuple
 
-from harmony.core.constants import ByteOrder
-from harmony.core.interfaces import WritingStrategy
-from harmony.core.models import RGB, Color
-from harmony.core.utils import BytesUtils
+from harmony import core
+from harmony.core import interfaces
 
 
-class ASEWriting(WritingStrategy):
+class ASEWriting(interfaces.WritingStrategy):
     """Writting strategy that results into an ".ase" file"""
 
     EXTENSION = "ase"
 
-    FLOAT_BYTE_ORDER = ByteOrder.BIG
+    FLOAT_BYTE_ORDER = core.ByteOrder.BIG
 
     def __init__(self, palette_name: str) -> None:
         self.palette_name = palette_name
         self._logger = logging.getLogger(self.__class__.__name__)
 
-    def write(self, colors: Tuple[Color, ...], final_file_path: str):
+    def write(self, colors: Tuple[core.Color, ...], final_file_path: str):
         """Write colors to a ".ase" file
 
         Args:
@@ -28,7 +26,7 @@ class ASEWriting(WritingStrategy):
         with open(final_file_path, "wb") as colors_file:
             colors_file.write(self._get_file_content(colors))
 
-    def _get_file_content(self, colors: Tuple[Color, ...]) -> bytes:
+    def _get_file_content(self, colors: Tuple[core.Color, ...]) -> bytes:
         file_content = self._get_file_head_bytes(colors)
         file_content.extend(self._get_palette_name_chunk())
         file_content.extend(self._get_color_bytes(colors))
@@ -36,11 +34,11 @@ class ASEWriting(WritingStrategy):
 
         return file_content
 
-    def _get_file_head_bytes(self, colors: Tuple[Color, ...]) -> bytearray:
+    def _get_file_head_bytes(self, colors: Tuple[core.Color, ...]) -> bytearray:
         return self._get_file_head(self._get_amount_of_ase_chunks(colors))
 
     @staticmethod
-    def _get_amount_of_ase_chunks(colors: Tuple[Color, ...]) -> int:
+    def _get_amount_of_ase_chunks(colors: Tuple[core.Color, ...]) -> int:
         # The amount of ASE chunks is equal to the sum of the number of colors + one
         return len(colors) + 2
 
@@ -99,7 +97,7 @@ class ASEWriting(WritingStrategy):
     def _get_palette_name_chunk_count(palette_name: bytes) -> int:
         return int(len(palette_name) / 2)
 
-    def _get_color_bytes(self, colors: Tuple[Color, ...]) -> bytearray:
+    def _get_color_bytes(self, colors: Tuple[core.Color, ...]) -> bytearray:
         color_bytes = bytearray()
 
         for color in colors:
@@ -125,30 +123,30 @@ class ASEWriting(WritingStrategy):
             + "%(description_bytes)s"
         )
 
-    def _get_description_converted_log_data(self, color: Color) -> Dict[str, Any]:
+    def _get_description_converted_log_data(self, color: core.Color) -> Dict[str, Any]:
         return {
             "description": color.description,
             "description_bytes": self._get_description_bytes(color.description),
         }
 
-    def _log_rgb_converted(self, color: Color, rgb_bytes: bytes) -> None:
+    def _log_rgb_converted(self, color: core.Color, rgb_bytes: bytes) -> None:
         self._logger.info(
             "RGB components %(rgb)s converted to %(rgb_bytes)s",
             self._get_rgb_converted_log_data(color, rgb_bytes),
         )
 
     def _get_rgb_converted_log_data(
-        self, color: Color, rgb_bytes: bytes
+        self, color: core.Color, rgb_bytes: bytes
     ) -> Dict[str, Any]:
         return {
             "rgb": str(color.rgb),
             "rgb_bytes": rgb_bytes,
         }
 
-    def _get_color_chunk_size_bytes(self, color: Color) -> bytes:
+    def _get_color_chunk_size_bytes(self, color: core.Color) -> bytes:
         return self._get_color_chunk_size(color).to_bytes(2, "big")
 
-    def _get_color_chunk_size(self, color: Color) -> int:
+    def _get_color_chunk_size(self, color: core.Color) -> int:
         return self._get_description_bytes_length(
             color.description
         ) + self._get_rgb_as_bytes_length(color.rgb)
@@ -156,7 +154,7 @@ class ASEWriting(WritingStrategy):
     def _get_description_bytes_length(self, description: str) -> int:
         return len(self._get_description_bytes(description))
 
-    def _get_rgb_as_bytes_length(self, rgb: RGB) -> int:
+    def _get_rgb_as_bytes_length(self, rgb: core.RGB) -> int:
         return len(self._convert_rgb_to_bytes(rgb))
 
     def _get_description_bytes(self, description: str) -> bytearray:
@@ -183,16 +181,20 @@ class ASEWriting(WritingStrategy):
 
         return description_as_bytes
 
-    def _convert_rgb_to_bytes(self, rgb: RGB) -> bytearray:
+    def _convert_rgb_to_bytes(self, rgb: core.RGB) -> bytearray:
         rgb_bytes = bytearray(b"RGB\x20")
         rgb_bytes.extend(
-            BytesUtils.float_to_bytes(rgb.red_as_percentage, self.FLOAT_BYTE_ORDER)
+            core.BytesUtils.float_to_bytes(rgb.red_as_percentage, self.FLOAT_BYTE_ORDER)
         )
         rgb_bytes.extend(
-            BytesUtils.float_to_bytes(rgb.green_as_percentage, self.FLOAT_BYTE_ORDER)
+            core.BytesUtils.float_to_bytes(
+                rgb.green_as_percentage, self.FLOAT_BYTE_ORDER
+            )
         )
         rgb_bytes.extend(
-            BytesUtils.float_to_bytes(rgb.blue_as_percentage, self.FLOAT_BYTE_ORDER)
+            core.BytesUtils.float_to_bytes(
+                rgb.blue_as_percentage, self.FLOAT_BYTE_ORDER
+            )
         )
 
         rgb_bytes.extend(b"\x00\x02")
