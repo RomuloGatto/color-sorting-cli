@@ -85,7 +85,7 @@ until it represents all colors.
 
 It might be hard working with bytes at first. There are some chunks I still don't understand. But, I'm sure that, on time and with people like me and you working on this, it will change. There will be a future where working the .clr will be trivial. Then, we will be able to go back to our lives with the abstractions letting us to worry only with plain text and GUIs.
 
-## References 
+## References
 
 1. ANSI. (2022). _INCITS 4-1986 (R2022), Information Systems - Coded Character Sets - 7- Bit Standard Code for Information Interchange (7-Bit ASCII)_.
 2. Cupertino, C. (1996). Apple Computer, Inc. Agrees to Acquire NeXT Software Inc.. https://web.archive.org/web/20020208190346/http://product.info.apple.com/pr/press.releases/1997/q1/961220.pr.rel.next.html.
