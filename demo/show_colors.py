@@ -1,7 +1,7 @@
 import os
 import sys
-from tkinter import Canvas, Misc, Tk
 from dataclasses import dataclass
+from tkinter import Canvas, Misc, Tk
 from typing import List, Tuple
 
 TOTAL_WIDTH = 1000
@@ -24,7 +24,6 @@ class ColorSliceData:
 
 class ColorSliceSetFactory:
     def make_set(self, colors_file_name: str) -> Tuple[ColorSliceData, ...]:
-        color_strings: List[str] = []
 
         colors_file_path = get_colors_file(colors_file_name)
 
