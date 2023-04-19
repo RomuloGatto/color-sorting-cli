@@ -24,14 +24,14 @@ repos:
             "--select=F",
             "--max-line-length=88",
             "--per-file-ignores=__init__.py:F401",
-          ]    
+          ]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: 'v0.0.261'
     hooks:
       - id: ruff
-        args: 
+        args:
           [
-            --fix, 
+            --fix,
             --exit-non-zero-on-fix
           ]
   - repo: https://github.com/pre-commit/pre-commit-hooks
